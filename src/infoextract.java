@@ -2,7 +2,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
+import java.util.*;
+
 
 public class infoextract {
     private static ArrayList<Template> templates = new ArrayList<>();
@@ -89,7 +90,8 @@ public class infoextract {
         Template template;
         for(String story : stories) {
             template = new Template()
-                    .setId(findStoryId(story));
+                    .setId(findStoryId(story))
+                    .setIncident(findStoryIncident(story));
             //The the logic for parsing the story and building the template should be here
             //Incident
             //Weapon
@@ -104,5 +106,75 @@ public class infoextract {
      * line will always be formatted in a way where the ID is followed by a '(' */
     private static String findStoryId(String story){
         return story.substring(0, story.indexOf("(")).trim();
+    }
+    /**Used for determining the Incident type for a given story.
+     * The possible Incident types are: ARSON, ATTACK, BOMBING, KIDNAPPING, ROBBERY
+     * We check each word in the story and see which key words defined for each type occur most frequently*/
+    private static String findStoryIncident(String story){
+        Incident
+                arson       = new Incident().setType("ARSON"),
+                attack      = new Incident().setType("ATTACK"),
+                bombing     = new Incident().setType("BOMBING"),
+                kidnapping  = new Incident().setType("KIDNAPPING"),
+                robbery     = new Incident().setType("ROBBERY");
+        List<String>
+                arsonKeyWords       = Arrays.asList(Constants.INCIDENT_ARSON),
+                attackKeyWords      = Arrays.asList(Constants.INCIDENT_ATTACK),
+                bombingKeyWords     = Arrays.asList(Constants.INCIDENT_BOMBING),
+                kidnappingKeyWords  = Arrays.asList(Constants.INCIDENT_KIDNAPPING),
+                robberyKeyWords     = Arrays.asList(Constants.INCIDENT_ROBBERY);
+
+        String[] storySplitByWords = story.split("\\s+");
+
+        for(String word:storySplitByWords){
+            if (arsonKeyWords.contains(word.toLowerCase())) {
+                arson.incrementOccurrence();
+            } else if (attackKeyWords.contains(word.toLowerCase())) {
+                attack.incrementOccurrence();
+            } else if (bombingKeyWords.contains(word.toLowerCase())) {
+                bombing.incrementOccurrence();
+            } else if (kidnappingKeyWords.contains(word.toLowerCase())) {
+                kidnapping.incrementOccurrence();
+            } else if (robberyKeyWords.contains(word.toLowerCase())) {
+                robbery.incrementOccurrence();
+            }
+        }
+
+        List<Incident> incidents = new ArrayList<>();
+        incidents.add(arson);
+        incidents.add(attack);
+        incidents.add(bombing);
+        incidents.add(kidnapping);
+        incidents.add(robbery);
+
+        incidents.sort(Comparator.comparing(Incident::getOccurrence));
+
+        // if after sorting, the last element is size 0, we found no key words, return ATTACK as default
+        if(incidents.get(incidents.size()-1).getOccurrence() == 0){
+            return attack.getType();
+        } else {
+            return incidents.get(incidents.size()-1).getType();
+        }
+    }
+    /**This class makes it easier to get the type with the most frequently occurring key words*/
+    private static class Incident{
+        private Incident(){}
+        private String _type;
+        private int _occurrence = 0;
+
+        private Incident setType(String type){
+            _type = type;
+            return this;
+        }
+        private String getType(){
+            return _type;
+        }
+
+        private void incrementOccurrence(){
+            _occurrence++;
+        }
+        private int getOccurrence(){
+            return _occurrence;
+        }
     }
 }

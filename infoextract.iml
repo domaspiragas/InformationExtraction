@@ -7,5 +7,19 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$USER_HOME$/Desktop/NLP/stanford-corenlp-full-2017-06-09" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$USER_HOME$/Desktop/NLP/stanford-corenlp-full-2017-06-09" />
+          <root url="file://$USER_HOME$/Desktop/NLP/stanford-corenlp-full-2017-06-09" />
+        </SOURCES>
+        <jarDirectory url="file://$USER_HOME$/Desktop/NLP/stanford-corenlp-full-2017-06-09" recursive="false" />
+        <jarDirectory url="file://$USER_HOME$/Desktop/NLP/stanford-corenlp-full-2017-06-09" recursive="false" type="SOURCES" />
+      </library>
+    </orderEntry>
   </component>
 </module>
