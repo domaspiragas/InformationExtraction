@@ -2,15 +2,37 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.util.*;
+
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.HasWord;
+import edu.stanford.nlp.ling.TaggedWord;
+import edu.stanford.nlp.parser.nndep.DependencyParser;
+import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.process.DocumentPreprocessor;
+import edu.stanford.nlp.tagger.maxent.MaxentTagger;
+import edu.stanford.nlp.trees.GrammaticalRelation;
+import edu.stanford.nlp.trees.GrammaticalStructure;
+import edu.stanford.nlp.trees.TypedDependency;
+import edu.stanford.nlp.ie.AbstractSequenceClassifier;
+import edu.stanford.nlp.ie.crf.CRFClassifier;
+
 
 
 public class infoextract {
     private static ArrayList<Template> templates = new ArrayList<>();
     private static ArrayList<String> stories = new ArrayList<>();
-
-    public static void main(String[] args){
-
+    private static ArrayList<String> NOUNS = new ArrayList<>();
+    private static ArrayList<String> POS = new ArrayList<>();
+    private static ArrayList<String> WORDS = new ArrayList<>();
+    public static void main(String[] args) throws ClassCastException, ClassNotFoundException, IOException{
+    	parseInputStories("DEV-MUC3-0014.txt");
+    	generateTemplatesFromStories();
+    	
+    	System.out.println(templates);
+    	
         /*//This would ideally be the total contents of main
         * parseInputStories(args[0]);
         *
@@ -85,13 +107,31 @@ public class infoextract {
         }
     }
 
-    /**Parses and creates a template for each story and stores it*/
-    private static void generateTemplatesFromStories(){
+    /**Parses and creates a template for each story and stores it
+     * @throws IOException 
+     * @throws ClassNotFoundException 
+     * @throws ClassCastException */
+    private static void generateTemplatesFromStories() throws ClassCastException, ClassNotFoundException, IOException{
         Template template;
         for(String story : stories) {
+        	findPOS(story);
+        
+        	findNouns(story);
+        	
             template = new Template()
                     .setId(findStoryId(story))
                     .setIncident(findStoryIncident(story));
+            for(int i=0;i<findStoryWeapon(story).size();i++) {
+            		template.addWeapon(findStoryWeapon(story).get(i));
+            		}
+            for(int i=0;i<findStoryVictim(story).size();i++) {
+        		template.addVictim(findStoryVictim(story).get(i));
+        		}
+            	
+            	for(int i=0;i<findStoryTarget(story).size();i++) {
+            		template.addTarget(findStoryTarget(story).get(i));
+            		}
+            		
             //The the logic for parsing the story and building the template should be here
             //Incident
             //Weapon
@@ -149,13 +189,147 @@ public class infoextract {
 
         incidents.sort(Comparator.comparing(Incident::getOccurrence));
 
-        // if after sorting, the last element is size 0, we found no key words, return ATTACK as default
+        // if after sorting, the last element is size 0, we found no keywords, return ATTACK as default
         if(incidents.get(incidents.size()-1).getOccurrence() == 0){
             return attack.getType();
         } else {
             return incidents.get(incidents.size()-1).getType();
         }
     }
+    private static void findPOS(String story){
+    	   Properties props = new Properties();
+  	   props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+  	   StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+  	   Annotation document = new Annotation(story);
+  	   pipeline.annotate(document);
+  	   MaxentTagger tagger = new MaxentTagger("/Users/maryambarouti/Desktop/ProjectNLP/Project/stanford-postagger-2017-06-09/models/english-bidirectional-distsim.tagger");
+  	   String tagged = tagger.tagString(story);
+  	   //System.out.println(tagged);
+  	   String [] tokens=tagged.split(" ");
+  	   for(int i=0;i<tokens.length;i++){
+  		  // if(tokens[i].split("_")[1].equals("NNP") ||tokens[i].split("_")[1].equals("NNS")||tokens[i].split("_")[1].equals("NN") ||tokens[i].split("_")[1].equals("NNPS")) {
+  			   POS.add(tokens[i].split("_")[0]+":"+tokens[i].split("_")[1]+":"+i);
+  			   WORDS.add(tokens[i].split("_")[0]+":"+i);
+  	   }
+    }   
+    private static void findNouns(String story){
+	   for(int i=0;i<POS.size();i++){
+		   if(POS.get(i).split(":")[1].equals("NNP") ||POS.get(i).split(":")[1].equals("NNS")||POS.get(i).split(":")[1].equals("NN") ||POS.get(i).split(":")[1].equals("NNPS")) {
+			   NOUNS.add(POS.get(i));
+		   }
+	   }
+    }
+    
+   private static ArrayList<String> findStoryWeapon(String story){
+	   String weapon="";
+	   HashMap<String,Integer> weapons=new HashMap<>();
+	   ArrayList<String> weap=new ArrayList<String>();
+	   
+	   List<String>
+       weaponsKeyWords       = Arrays.asList(Constants.WEAPONS);
+	   for(int i=0;i<WORDS.size();i++){
+		   int count=0;
+           if (weaponsKeyWords.contains(WORDS.get(i).split(":")[0])) {
+        	   		System.out.println(WORDS.get(i));
+        	   		count++;
+        	   		weapons.put(NounPhrase(WORDS.get(i)), count);
+           }
+       }
+	   System.out.println(weapons);
+	   if(!weapons.isEmpty()) {
+		   for(String key:weapons.keySet()) {
+			   if(weapons.get(key)>0) {
+				   weap.add(key);
+			   }
+		   }
+	   }
+	   return weap;
+   }
+   private static ArrayList<String> findStoryTarget(String story) {
+	   HashMap<String,Integer> targets=new HashMap<String,Integer>();
+	   ArrayList<String> tar=new ArrayList<String>();
+	   List<String> keyWords=Arrays.asList(Constants.TARGET);
+	   for(int i=1;i<WORDS.size();i++) {
+		   int count=0;
+		   if(keyWords.contains(WORDS.get(i).split(":")[0])) {
+			   count++;
+			   targets.put(WORDS.get(i)+":"+i,count);
+		   }
+	   }
+	   for(String key:targets.keySet()) {
+		   if(targets.get(key)==1) {
+			   String g=NounPhrase(key);
+			   tar.add(g);
+			   
+		   }
+		  
+	   }
+	   
+	   return tar;
+   }
+   private static String NounPhrase(String word){
+	   String x="";
+	   int first=Integer.valueOf(word.split(":")[1])+2;
+	   int last=Integer.valueOf(word.split(":")[1])-2;
+  			for(int j=Integer.valueOf(word.split(":")[1]);j<Math.min(Integer.valueOf(word.split(":")[1])+2,POS.size());j++) {
+  				if(!POS.get(j).split(":")[1].equals("NNP") && !POS.get(j).split(":")[1].equals("NNS")&& !POS.get(j).split(":")[1].equals("NN") &&!POS.get(j).split(":")[1].equals("NNPS")) {
+  					first=Math.min(j,first);
+  				  }
+  			  }
+  			for(int k=Integer.valueOf(word.split(":")[1])-1;k<=Math.max(Integer.valueOf(word.split(":")[1])-2,0);k--) {
+  				last=Integer.valueOf(word.split(":")[1])+1;
+  				if(!POS.get(k).split(":")[1].equals("NNP") && !POS.get(k).split(":")[1].equals("NNS")&& !POS.get(k).split(":")[1].equals("NN") && !POS.get(k).split(":")[1].equals("NNPS")) {
+  					last=Math.max(k, last);
+  					x=POS.get(k).split(":")[0]+" "+x;
+    			  }
+  			}
+  			
+  			for(int p=Integer.valueOf(word.split(":")[1])-1;p<=last;p--) {
+				x=POS.get(p).split(":")[0]+" "+x;
+			}
+  			for(int o=Integer.valueOf(word.split(":")[1])-1;o<first;o++) {
+				x=x+" "+POS.get(o).split(":")[0];
+			}
+	return x;
+	   
+   }
+   private static ArrayList<String> findStoryVictim(String story) throws ClassCastException, ClassNotFoundException, IOException{
+	   String victim="";
+	   ArrayList<String> vic=new ArrayList<String>();
+	   String modelPath = DependencyParser.DEFAULT_MODEL;
+	  
+	   String taggerPath = "edu/stanford/nlp/models/pos-tagger/english-left3words/english-left3words-distsim.tagger";
+	   MaxentTagger tagger = new MaxentTagger(taggerPath);
+	    DependencyParser parser = DependencyParser.loadFromModelFile(modelPath);
+	    DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(story));
+	    List<String>
+        arsonKeyWords       = Arrays.asList(Constants.INCIDENT_ARSON),
+        attackKeyWords      = Arrays.asList(Constants.INCIDENT_ATTACK),
+        bombingKeyWords     = Arrays.asList(Constants.INCIDENT_BOMBING),
+        kidnappingKeyWords  = Arrays.asList(Constants.INCIDENT_KIDNAPPING),
+        robberyKeyWords     = Arrays.asList(Constants.INCIDENT_ROBBERY);
+	    for (List<HasWord> sentence : tokenizer) {
+		      List<TaggedWord> tagged = tagger.tagSentence(sentence);
+		      GrammaticalStructure gs= parser.predict(tagged);
+		      List<TypedDependency> x = gs.typedDependenciesEnhancedPlusPlus();
+		      for(int i=0;i<x.size();i++) {
+		    	  	if(x.get(i).reln().toString().equals("amod") || x.get(i).reln().toString().equals("nmod:of")) {
+		    	  		String [] y=x.get(i).toString().split(",");
+		    	  		String word1=y[0].split("\\(")[1].split("-")[0];
+		    	  		String word2=y[1].split("\\)")[0].split("-")[0].replaceAll(" ", "");
+		    	  		
+		    	  		int num1=Integer.valueOf(y[0].split("\\(")[1].split("-")[1]);
+		    	  		int num2=Integer.valueOf(y[1].split("\\)")[0].split("-")[1]);
+		    	  		if(num1>num2 && (arsonKeyWords.contains(word2.toLowerCase()) || attackKeyWords.contains(word2.toLowerCase())||bombingKeyWords.contains(word2.toLowerCase())||kidnappingKeyWords.contains(word2.toLowerCase())||robberyKeyWords.contains(word2.toLowerCase()))) {
+		    	  			if(!arsonKeyWords.contains(word1.toLowerCase()) && !attackKeyWords.contains(word1.toLowerCase()) && !bombingKeyWords.contains(word1.toLowerCase()) || !kidnappingKeyWords.contains(word1.toLowerCase())||!robberyKeyWords.contains(word1.toLowerCase()))
+		    	  			vic.add(word1);
+		    	  		}
+		    	  	}	
+		      }    
+	    }  
+	  
+	   return vic;
+   }
     /**This class makes it easier to get the type with the most frequently occurring key words*/
     private static class Incident{
         private Incident(){}
@@ -169,7 +343,6 @@ public class infoextract {
         private String getType(){
             return _type;
         }
-
         private void incrementOccurrence(){
             _occurrence++;
         }
@@ -177,4 +350,5 @@ public class infoextract {
             return _occurrence;
         }
     }
+
 }
