@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a793b546-4aa4-4b6d-ac43-97f76282fb1e" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Constants.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/stanford-corenlp-3.8.0.jar" afterPath="$PROJECT_DIR$/resources/stanford-corenlp-3.8.0.jar" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/infoextract.iml" afterPath="$PROJECT_DIR$/infoextract.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Constants.java" afterPath="$PROJECT_DIR$/src/Constants.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/infoextract.java" afterPath="$PROJECT_DIR$/src/infoextract.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -17,22 +18,49 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="infoextract.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="infoextract.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/infoextract.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="343">
-              <caret line="179" column="22" lean-forward="false" selection-start-line="179" selection-start-column="20" selection-end-line="179" selection-end-column="22" />
+            <state relative-caret-position="151">
+              <caret line="208" column="86" lean-forward="true" selection-start-line="208" selection-start-column="86" selection-end-line="208" selection-end-column="86" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#4288#4289#0" expanded="true" />
-                <element signature="e#4356#4357#0" expanded="true" />
-                <element signature="e#7118#7119#0" expanded="true" />
-                <element signature="e#7154#7155#0" expanded="true" />
-                <element signature="e#7199#7200#0" expanded="true" />
-                <element signature="e#7236#7237#0" expanded="true" />
-                <element signature="e#7273#7274#0" expanded="true" />
-                <element signature="e#7315#7316#0" expanded="true" />
+                <element signature="e#5932#5933#0" expanded="true" />
+                <element signature="e#6000#6001#0" expanded="true" />
+                <element signature="e#9771#9779#0" expanded="true" />
+                <element signature="e#10462#10478#0" expanded="true" />
+                <element signature="e#10521#10529#0" expanded="true" />
+                <element signature="e#12343#12351#0" expanded="true" />
+                <element signature="e#14821#14822#0" expanded="true" />
+                <element signature="e#14857#14858#0" expanded="true" />
+                <element signature="e#14901#14902#0" expanded="true" />
+                <element signature="e#14938#14939#0" expanded="true" />
+                <element signature="e#14975#14976#0" expanded="true" />
+                <element signature="e#15017#15018#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="FIRST">
+              <first_editor relative-caret-position="36">
+                <caret line="2" column="68" lean-forward="false" selection-start-line="2" selection-start-column="68" selection-end-line="2" selection-end-column="68" />
+                <folding />
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/resources/test.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1206">
+              <caret line="67" column="68" lean-forward="true" selection-start-line="67" selection-start-column="68" selection-end-line="67" selection-end-column="68" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -40,21 +68,9 @@
       <file leaf-file-name="Constants.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Constants.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="36">
-              <caret line="2" column="12" lean-forward="false" selection-start-line="2" selection-start-column="12" selection-end-line="2" selection-end-column="12" />
+            <state relative-caret-position="252">
+              <caret line="14" column="66" lean-forward="false" selection-start-line="14" selection-start-column="66" selection-end-line="14" selection-end-column="66" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Stemmer.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Stemmer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="444">
-              <caret line="543" column="12" lean-forward="false" selection-start-line="543" selection-start-column="12" selection-end-line="543" selection-end-column="12" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -62,7 +78,7 @@
       <file leaf-file-name="Template.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Template.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="487">
+            <state relative-caret-position="-827">
               <caret line="68" column="0" lean-forward="false" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
               <folding />
             </state>
@@ -77,6 +93,16 @@
         <option value="Class" />
       </list>
     </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>findStoryTarget</find>
+      <find>WORDS</find>
+      <find>NOUNS</find>
+      <find>resource</find>
+      <find>tagger</find>
+      <find>model</find>
+    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -93,8 +119,10 @@
         <option value="$PROJECT_DIR$/src/test.txt" />
         <option value="$PROJECT_DIR$/src/Template.java" />
         <option value="$PROJECT_DIR$/src/Stemmer.java" />
+        <option value="$PROJECT_DIR$/resources/test2.txt" />
         <option value="$PROJECT_DIR$/src/Constants.java" />
         <option value="$PROJECT_DIR$/src/infoextract.java" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -104,11 +132,11 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="65" />
-    <option name="y" value="-4" />
-    <option name="width" value="1855" />
-    <option name="height" value="987" />
+  <component name="ProjectFrameBounds" extendedState="7">
+    <option name="x" value="13" />
+    <option name="y" value="16" />
+    <option name="width" value="1853" />
+    <option name="height" value="979" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -126,7 +154,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
+      <pane id="Scratches" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -153,8 +182,7 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -296,15 +324,16 @@
       <option name="presentableId" value="Default" />
       <updated>1509424249271</updated>
       <workItem from="1509424253173" duration="12917000" />
-      <workItem from="1509688170819" duration="6943000" />
+      <workItem from="1509688170819" duration="7883000" />
+      <workItem from="1510104537108" duration="6428000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="19860000" />
+    <option name="totallyTimeSpent" value="27228000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="65" y="-4" width="1857" height="995" extended-state="6" />
+    <frame x="65" y="-4" width="1855" height="987" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -314,10 +343,10 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32983682" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32983682" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32983682" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32983682" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25262576" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25538972" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -365,14 +394,6 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/infoextract.java</url>
-          <line>21</line>
-          <properties />
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
       <option name="time" value="4" />
     </breakpoint-manager>
     <watches-manager />
@@ -380,18 +401,70 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/infoextract.java">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#5932#5933#0" expanded="true" />
+            <element signature="e#6000#6001#0" expanded="true" />
+            <element signature="e#9771#9779#0" expanded="true" />
+            <element signature="e#10462#10478#0" expanded="true" />
+            <element signature="e#10521#10529#0" expanded="true" />
+            <element signature="e#12343#12351#0" expanded="true" />
+            <element signature="e#14821#14822#0" expanded="true" />
+            <element signature="e#14857#14858#0" expanded="true" />
+            <element signature="e#14901#14902#0" expanded="true" />
+            <element signature="e#14938#14939#0" expanded="true" />
+            <element signature="e#14975#14976#0" expanded="true" />
+            <element signature="e#15017#15018#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Constants.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="36">
+          <caret line="2" column="12" lean-forward="false" selection-start-line="2" selection-start-column="12" selection-end-line="2" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Template.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="972">
+          <caret line="68" column="0" lean-forward="false" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Stemmer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="9702">
+          <caret line="543" column="12" lean-forward="false" selection-start-line="543" selection-start-column="12" selection-end-line="543" selection-end-column="12" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/infoextract.java">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
           <caret line="16" column="47" lean-forward="false" selection-start-line="16" selection-start-column="47" selection-end-line="16" selection-end-column="47" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#4288#4289#0" expanded="true" />
-            <element signature="e#4356#4357#0" expanded="true" />
-            <element signature="e#7118#7119#0" expanded="true" />
-            <element signature="e#7154#7155#0" expanded="true" />
-            <element signature="e#7199#7200#0" expanded="true" />
-            <element signature="e#7236#7237#0" expanded="true" />
-            <element signature="e#7273#7274#0" expanded="true" />
-            <element signature="e#7315#7316#0" expanded="true" />
+            <element signature="e#5932#5933#0" expanded="true" />
+            <element signature="e#6000#6001#0" expanded="true" />
+            <element signature="e#9771#9779#0" expanded="true" />
+            <element signature="e#10462#10478#0" expanded="true" />
+            <element signature="e#10521#10529#0" expanded="true" />
+            <element signature="e#12343#12351#0" expanded="true" />
+            <element signature="e#14821#14822#0" expanded="true" />
+            <element signature="e#14857#14858#0" expanded="true" />
+            <element signature="e#14901#14902#0" expanded="true" />
+            <element signature="e#14938#14939#0" expanded="true" />
+            <element signature="e#14975#14976#0" expanded="true" />
+            <element signature="e#15017#15018#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -423,9 +496,16 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/news.txt.templates" />
+    <entry file="file://$PROJECT_DIR$/infoextract.iml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/Stemmer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="444">
+        <state relative-caret-position="18">
           <caret line="543" column="12" lean-forward="false" selection-start-line="543" selection-start-column="12" selection-end-line="543" selection-end-column="12" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -435,51 +515,101 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Template.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="487">
+        <state relative-caret-position="-827">
           <caret line="68" column="0" lean-forward="false" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
+    <entry file="jar://$USER_HOME$/Desktop/NLP/stanford-corenlp-full-2017-06-09/stanford-corenlp-3.8.0-sources.jar!/edu/stanford/nlp/tagger/maxent/MaxentTagger.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="271" column="74" lean-forward="true" selection-start-line="271" selection-start-column="74" selection-end-line="271" selection-end-column="74" />
+          <folding>
+            <element signature="e#20815#20816#0" expanded="false" />
+            <element signature="e#20897#20898#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/test.txt.templates">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="36">
-          <caret line="2" column="24" lean-forward="true" selection-start-line="2" selection-start-column="24" selection-end-line="2" selection-end-column="24" />
+        <state relative-caret-position="-90">
+          <caret line="7" column="31" lean-forward="true" selection-start-line="7" selection-start-column="31" selection-end-line="7" selection-end-column="31" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/test.txt">
+    <entry file="file://$PROJECT_DIR$/resources/test2.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="67" column="68" lean-forward="true" selection-start-line="67" selection-start-column="68" selection-end-line="67" selection-end-column="68" />
+        <state relative-caret-position="152">
+          <caret line="66" column="21" lean-forward="false" selection-start-line="66" selection-start-column="21" selection-end-line="66" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test2.txt.templates">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Constants.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="36">
-          <caret line="2" column="12" lean-forward="false" selection-start-line="2" selection-start-column="12" selection-end-line="2" selection-end-column="12" />
+        <state relative-caret-position="252">
+          <caret line="14" column="66" lean-forward="false" selection-start-line="14" selection-start-column="66" selection-end-line="14" selection-end-column="66" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/test.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1206">
+          <caret line="67" column="68" lean-forward="true" selection-start-line="67" selection-start-column="68" selection-end-line="67" selection-end-column="68" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/Desktop/NLP/stanford-corenlp-full-2017-06-09/stanford-corenlp-3.8.0-sources.jar!/edu/stanford/nlp/parser/nndep/DependencyParser.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="350">
+          <caret line="83" column="58" lean-forward="true" selection-start-line="83" selection-start-column="58" selection-end-line="83" selection-end-column="58" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/infoextract.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="343">
-          <caret line="179" column="22" lean-forward="false" selection-start-line="179" selection-start-column="20" selection-end-line="179" selection-end-column="22" />
+        <state relative-caret-position="151">
+          <caret line="208" column="86" lean-forward="true" selection-start-line="208" selection-start-column="86" selection-end-line="208" selection-end-column="86" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#4288#4289#0" expanded="true" />
-            <element signature="e#4356#4357#0" expanded="true" />
-            <element signature="e#7118#7119#0" expanded="true" />
-            <element signature="e#7154#7155#0" expanded="true" />
-            <element signature="e#7199#7200#0" expanded="true" />
-            <element signature="e#7236#7237#0" expanded="true" />
-            <element signature="e#7273#7274#0" expanded="true" />
-            <element signature="e#7315#7316#0" expanded="true" />
+            <element signature="e#5932#5933#0" expanded="true" />
+            <element signature="e#6000#6001#0" expanded="true" />
+            <element signature="e#9771#9779#0" expanded="true" />
+            <element signature="e#10462#10478#0" expanded="true" />
+            <element signature="e#10521#10529#0" expanded="true" />
+            <element signature="e#12343#12351#0" expanded="true" />
+            <element signature="e#14821#14822#0" expanded="true" />
+            <element signature="e#14857#14858#0" expanded="true" />
+            <element signature="e#14901#14902#0" expanded="true" />
+            <element signature="e#14938#14939#0" expanded="true" />
+            <element signature="e#14975#14976#0" expanded="true" />
+            <element signature="e#15017#15018#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="36">
+            <caret line="2" column="68" lean-forward="false" selection-start-line="2" selection-start-column="68" selection-end-line="2" selection-end-column="68" />
+            <folding />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>

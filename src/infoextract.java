@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.*;
 
-import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.parser.nndep.DependencyParser;
@@ -13,11 +12,8 @@ import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.process.DocumentPreprocessor;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
-import edu.stanford.nlp.trees.GrammaticalRelation;
 import edu.stanford.nlp.trees.GrammaticalStructure;
 import edu.stanford.nlp.trees.TypedDependency;
-import edu.stanford.nlp.ie.AbstractSequenceClassifier;
-import edu.stanford.nlp.ie.crf.CRFClassifier;
 
 
 
@@ -28,10 +24,15 @@ public class infoextract {
     private static ArrayList<String> POS = new ArrayList<>();
     private static ArrayList<String> WORDS = new ArrayList<>();
     public static void main(String[] args) throws ClassCastException, ClassNotFoundException, IOException{
-    	parseInputStories("DEV-MUC3-0014.txt");
-    	generateTemplatesFromStories();
-    	
-    	System.out.println(templates);
+    	//parseInputStories("resources/test2.txt");
+    	//generateTemplatesFromStories();
+    	//createTemplatesFile("test2.txt");
+    	//System.out.println(templates);
+        parseInputStories(args[0]);
+
+        generateTemplatesFromStories();
+
+        createTemplatesFile(args[0]);
     	
         /*//This would ideally be the total contents of main
         * parseInputStories(args[0]);
@@ -140,6 +141,9 @@ public class infoextract {
             //Target
             //Victim
             templates.add(template);
+            NOUNS.clear();
+            POS.clear();
+            WORDS.clear();
         }
     }
     /**Used for retrieving the ID of a story. We take advantage of the fact that the first
@@ -202,7 +206,7 @@ public class infoextract {
   	   StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
   	   Annotation document = new Annotation(story);
   	   pipeline.annotate(document);
-  	   MaxentTagger tagger = new MaxentTagger("/Users/maryambarouti/Desktop/ProjectNLP/Project/stanford-postagger-2017-06-09/models/english-bidirectional-distsim.tagger");
+  	   MaxentTagger tagger = new MaxentTagger("resources/english-bidirectional-distsim.tagger"); //TODO when turning in, make sure we have the correct relative path
   	   String tagged = tagger.tagString(story);
   	   //System.out.println(tagged);
   	   String [] tokens=tagged.split(" ");
@@ -298,7 +302,7 @@ public class infoextract {
 	   ArrayList<String> vic=new ArrayList<String>();
 	   String modelPath = DependencyParser.DEFAULT_MODEL;
 	  
-	   String taggerPath = "edu/stanford/nlp/models/pos-tagger/english-left3words/english-left3words-distsim.tagger";
+	   String taggerPath = "resources/english-left3words-distsim.tagger"; // TODO make sure we have the correct relative path when turing in
 	   MaxentTagger tagger = new MaxentTagger(taggerPath);
 	    DependencyParser parser = DependencyParser.loadFromModelFile(modelPath);
 	    DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(story));

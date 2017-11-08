@@ -1,7 +1,12 @@
 # InformationExtraction
 
-You should also download the model .jar file form here(english)
+Compile the project with the following command in the root directory:
+
+javac -cp stanford-corenlp-3.8.0.jar:stanford-corenlp-3.8.0-models.jar Template.java Constants.java infoextract.java
 
 
-https://stanfordnlp.github.io/CoreNLP/download.html
+Run the program with the following command: 
 
+java -cp .:stanford-corenlp-3.8.0.jar:stanford-corenlp-3.8.0-models.jar infoextract < path to input file >
+
+where < path to input file > is replaced with the actual path to the input file
