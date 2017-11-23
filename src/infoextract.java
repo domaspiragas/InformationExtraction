@@ -2,38 +2,31 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.util.*;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
-import edu.stanford.nlp.ling.HasWord;
-import edu.stanford.nlp.ling.TaggedWord;
-import edu.stanford.nlp.parser.nndep.DependencyParser;
-import edu.stanford.nlp.pipeline.Annotation;
-import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import edu.stanford.nlp.process.DocumentPreprocessor;
-import edu.stanford.nlp.tagger.maxent.MaxentTagger;
-import edu.stanford.nlp.trees.GrammaticalStructure;
-import edu.stanford.nlp.trees.TypedDependency;
-
-
+import opennlp.tools.cmdline.parser.ParserTool;
+import opennlp.tools.parser.Parse;
+import opennlp.tools.parser.ParserFactory;
+import opennlp.tools.parser.ParserModel;
+import opennlp.tools.sentdetect.SentenceDetectorME;
+import opennlp.tools.sentdetect.SentenceModel;
 
 public class infoextract {
     private static ArrayList<Template> templates = new ArrayList<>();
     private static ArrayList<String> stories = new ArrayList<>();
-    private static ArrayList<String> NOUNS = new ArrayList<>();
-    private static ArrayList<String> POS = new ArrayList<>();
-    private static ArrayList<String> WORDS = new ArrayList<>();
-    public static void main(String[] args) throws ClassCastException, ClassNotFoundException, IOException{
-    	//parseInputStories("resources/test2.txt");
-    	//generateTemplatesFromStories();
-    	//createTemplatesFile("test2.txt");
-    	//System.out.println(templates);
-        parseInputStories(args[0]);
+    private static ArrayList<String> Sents = new ArrayList<>();
 
+    //	private static Parse[] topParses;
+    public static void main(String[] args) throws ClassCastException, ClassNotFoundException, IOException {
+        parseInputStories("resources/test3.txt");
         generateTemplatesFromStories();
 
-        createTemplatesFile(args[0]);
-    	
+        for(Template t : templates) {
+            System.out.println(t.toString());
+        }
+
         /*//This would ideally be the total contents of main
         * parseInputStories(args[0]);
         *
@@ -41,59 +34,37 @@ public class infoextract {
         *
         * createTemplatesFile(args[0]);
         * */
-
-        //Testing parse input stories
-        /*parseInputStories("resources/test.txt");
-        for(String s: stories){
-            System.out.println(s);
-        }*/
-
-        //Testing output format
-       /* Template temp = new Template();
-
-        temp
-                .setId("DEV-MUC3-0046")
-                .setIncident("ATTACK")
-                .addPerpIndiv("DEMOCRATIC PATRIOTIC COMMITTEES")
-                .addPerpIndiv("OUR ORGANIZATION’S DISCIPLINARY TRIBUNAL")
-                .addPerpOrg("ANTICOMMUNIST ACTION ALLIANCE")
-                .addVictim("JORGE ARTURO REINA")
-                .addVictim("JUAN ALMENDAREZ BONILLA")
-                .addVictim("RAMON CUSTODIO LOPEZ")
-                .addVictim("ANIBAL PUERTO")
-                .addVictim("HECTOR HERNANDEZ");
-        templates.add(temp);
-        templates.add(temp);
-
-        System.out.println(temp.toString());
-
-        createTemplatesFile("news.txt"); */
     }
 
-    /**Generates a file named < fileName >.templates which contains the templates
-     * for each news story provided in < fileName >*/
-    private static void createTemplatesFile(String fileName){
-        try(PrintWriter out = new PrintWriter(fileName + ".templates")){
-            for(Template temp: templates){
+    /**
+     * Generates a file named < fileName >.templates which contains the templates
+     * for each news story provided in < fileName >
+     */
+    private static void createTemplatesFile(String fileName) {
+        try (PrintWriter out = new PrintWriter(fileName + ".templates")) {
+            for (Template temp : templates) {
                 out.println(temp.toString());
             }
-        }catch (Exception e){
-            System.out.println("Error: Failed to create: " + fileName + ".templates");}
+        } catch (Exception e) {
+            System.out.println("Error: Failed to create: " + fileName + ".templates");
+        }
     }
 
-    /**Reads an input file containing stories separated by one of three different headers:
+    /**
+     * Reads an input file containing stories separated by one of three different headers:
      * DEV-MUC3-XXXX, TST1-MUC3-XXXX, or TST2-MUC4-XXXX (where the X’s are digits)
-     * Each story is stored separately from the others*/
-    private static void parseInputStories(String fileName){
+     * Each story is stored separately from the others
+     */
+    private static void parseInputStories(String fileName) {
         String line;
         StringBuilder story = new StringBuilder();
         try {
             FileReader fileReader = new FileReader(fileName);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             while ((line = bufferedReader.readLine()) != null) {
-                if(line.startsWith("DEV-MUC") || line.startsWith("TST1-MUC3") || line.startsWith("TST2-MUC4")){
+                if (line.startsWith("DEV-MUC") || line.startsWith("TST1-MUC3") || line.startsWith("TST2-MUC4")) {
                     // The first pass will be empty, this check is to avoid adding an empty string to our stories
-                    if(!story.toString().isEmpty()){
+                    if (!story.toString().isEmpty()) {
                         stories.add(story.toString());
                         story.setLength(0);
                     }
@@ -108,69 +79,76 @@ public class infoextract {
         }
     }
 
-    /**Parses and creates a template for each story and stores it
-     * @throws IOException 
-     * @throws ClassNotFoundException 
-     * @throws ClassCastException */
-    private static void generateTemplatesFromStories() throws ClassCastException, ClassNotFoundException, IOException{
+    /**
+     * Parses and creates a template for each story and stores it
+     *{ID, Incident, Weapon, Perp Indiv, Perp Org, Target, Victim}
+     */
+    private static void generateTemplatesFromStories() throws ClassCastException, ClassNotFoundException, IOException {
         Template template;
-        for(String story : stories) {
-        	findPOS(story);
-        
-        	findNouns(story);
-        	
+        for (String story : stories) {
+            Sentences(story);
             template = new Template()
-                    .setId(findStoryId(story))
-                    .setIncident(findStoryIncident(story));
-            for(int i=0;i<findStoryWeapon(story).size();i++) {
-            		template.addWeapon(findStoryWeapon(story).get(i));
-            		}
-            for(int i=0;i<findStoryVictim(story).size();i++) {
-        		template.addVictim(findStoryVictim(story).get(i));
-        		}
-            	
-            	for(int i=0;i<findStoryTarget(story).size();i++) {
-            		template.addTarget(findStoryTarget(story).get(i));
-            		}
-            		
-            //The the logic for parsing the story and building the template should be here
-            //Incident
-            //Weapon
+                    .setId(findStoryId(story)) //ID
+                    .setIncident(findStoryIncident(story)); // Incident
+
             //Perp Indiv
-            //Perp Org
+            ArrayList<String> y2 = cleanData(findCategoryResult(patterns.pattern_Ind_after, patterns.pattern_Ind_before));
+            for (int i = 0; i < y2.size(); i++) {
+
+                template.addPerpIndiv(y2.get(i));
+            }
+
+            /*Perp Org Goes Here*/
+
             //Target
+            ArrayList<String> y1 = cleanData(findCategoryResult(patterns.pattern_target_after, patterns.pattern_target_before));
+            for (int i = 0; i < y1.size(); i++) {
+
+                template.addTarget(y1.get(i));
+            }
+
             //Victim
+            ArrayList<String> y = cleanData(findCategoryResult(patterns.pattern_Victim_after, patterns.pattern_Victim_before));
+            for (int i = 0; i < y.size(); i++) {
+
+                template.addVictim(y.get(i));
+            }
+
             templates.add(template);
-            NOUNS.clear();
-            POS.clear();
-            WORDS.clear();
+            Sents.clear(); // Clear so next story only contains its own sentences
         }
     }
-    /**Used for retrieving the ID of a story. We take advantage of the fact that the first
-     * line will always be formatted in a way where the ID is followed by a '(' */
-    private static String findStoryId(String story){
+
+    /**
+     * Used for retrieving the ID of a story. We take advantage of the fact that the first
+     * line will always be formatted in a way where the ID is followed by a '('
+     */
+    private static String findStoryId(String story) {
         return story.substring(0, story.indexOf("(")).trim();
     }
-    /**Used for determining the Incident type for a given story.
+
+    /**
+     * Used for determining the Incident type for a given story.
      * The possible Incident types are: ARSON, ATTACK, BOMBING, KIDNAPPING, ROBBERY
-     * We check each word in the story and see which key words defined for each type occur most frequently*/
-    private static String findStoryIncident(String story){
+     * We check each word in the story and see which key words defined for each type occur most frequently
+     */
+    private static String findStoryIncident(String story) {
         Incident
-                arson       = new Incident().setType("ARSON"),
-                attack      = new Incident().setType("ATTACK"),
-                bombing     = new Incident().setType("BOMBING"),
-                kidnapping  = new Incident().setType("KIDNAPPING"),
-                robbery     = new Incident().setType("ROBBERY");
+                arson = new Incident().setType("ARSON"),
+                attack = new Incident().setType("ATTACK"),
+                bombing = new Incident().setType("BOMBING"),
+                kidnapping = new Incident().setType("KIDNAPPING"),
+                robbery = new Incident().setType("ROBBERY");
         List<String>
-                arsonKeyWords       = Arrays.asList(Constants.INCIDENT_ARSON),
-                attackKeyWords      = Arrays.asList(Constants.INCIDENT_ATTACK),
-                bombingKeyWords     = Arrays.asList(Constants.INCIDENT_BOMBING),
-                kidnappingKeyWords  = Arrays.asList(Constants.INCIDENT_KIDNAPPING),
-                robberyKeyWords     = Arrays.asList(Constants.INCIDENT_ROBBERY);
+                arsonKeyWords = Arrays.asList(Constants.INCIDENT_ARSON),
+                attackKeyWords = Arrays.asList(Constants.INCIDENT_ATTACK),
+                bombingKeyWords = Arrays.asList(Constants.INCIDENT_BOMBING),
+                kidnappingKeyWords = Arrays.asList(Constants.INCIDENT_KIDNAPPING),
+                robberyKeyWords = Arrays.asList(Constants.INCIDENT_ROBBERY);
 
         String[] storySplitByWords = story.split("\\s+");
 
-        for(String word:storySplitByWords){
+        for (String word : storySplitByWords) {
             if (arsonKeyWords.contains(word.toLowerCase())) {
                 arson.incrementOccurrence();
             } else if (attackKeyWords.contains(word.toLowerCase())) {
@@ -194,163 +172,173 @@ public class infoextract {
         incidents.sort(Comparator.comparing(Incident::getOccurrence));
 
         // if after sorting, the last element is size 0, we found no keywords, return ATTACK as default
-        if(incidents.get(incidents.size()-1).getOccurrence() == 0){
+        if (incidents.get(incidents.size() - 1).getOccurrence() == 0) {
             return attack.getType();
         } else {
-            return incidents.get(incidents.size()-1).getType();
+            return incidents.get(incidents.size() - 1).getType();
         }
     }
-    private static void findPOS(String story){
-    	   Properties props = new Properties();
-  	   props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
-  	   StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-  	   Annotation document = new Annotation(story);
-  	   pipeline.annotate(document);
-  	   MaxentTagger tagger = new MaxentTagger("resources/english-bidirectional-distsim.tagger"); //TODO when turning in, make sure we have the correct relative path
-  	   String tagged = tagger.tagString(story);
-  	   //System.out.println(tagged);
-  	   String [] tokens=tagged.split(" ");
-  	   for(int i=0;i<tokens.length;i++){
-  		  // if(tokens[i].split("_")[1].equals("NNP") ||tokens[i].split("_")[1].equals("NNS")||tokens[i].split("_")[1].equals("NN") ||tokens[i].split("_")[1].equals("NNPS")) {
-  			   POS.add(tokens[i].split("_")[0]+":"+tokens[i].split("_")[1]+":"+i);
-  			   WORDS.add(tokens[i].split("_")[0]+":"+i);
-  	   }
-    }   
-    private static void findNouns(String story){
-	   for(int i=0;i<POS.size();i++){
-		   if(POS.get(i).split(":")[1].equals("NNP") ||POS.get(i).split(":")[1].equals("NNS")||POS.get(i).split(":")[1].equals("NN") ||POS.get(i).split(":")[1].equals("NNPS")) {
-			   NOUNS.add(POS.get(i));
-		   }
-	   }
+
+    private static ArrayList<String> cleanData(ArrayList<ArrayList<String>> uncleaned) {
+        ArrayList<String> cleaned = new ArrayList<String>();
+        for (int i = 0; i < uncleaned.size(); i++) {
+            for (int j = 0; j < uncleaned.get(i).size(); j++) {
+                String x = uncleaned.get(i).get(j);
+                if (!cleaned.contains(x) && x != null) {
+                    if (x.contains(" AND ")) {
+                        String[] words = x.split(" AND ");
+                        if (!cleaned.contains(removeExtraBef(removeExtraAf(words[0])))) {
+                            cleaned.add(removeExtraBef(removeExtraAf(words[0])));
+                        }
+                        if (!cleaned.contains(removeExtraBef(removeExtraAf(words[1])))) {
+                            cleaned.add(removeExtraBef(removeExtraAf(words[1])));
+                        }
+                    }
+                    if (!cleaned.contains(removeExtraBef(removeExtraAf(x))))
+                        cleaned.add(removeExtraBef(removeExtraAf(x)));
+                }
+            }
+        }
+        return cleaned;
     }
-    
-   private static ArrayList<String> findStoryWeapon(String story){
-	   String weapon="";
-	   HashMap<String,Integer> weapons=new HashMap<>();
-	   ArrayList<String> weap=new ArrayList<String>();
-	   
-	   List<String>
-       weaponsKeyWords       = Arrays.asList(Constants.WEAPONS);
-	   for(int i=0;i<WORDS.size();i++){
-		   int count=0;
-           if (weaponsKeyWords.contains(WORDS.get(i).split(":")[0])) {
-        	   		System.out.println(WORDS.get(i));
-        	   		count++;
-        	   		weapons.put(NounPhrase(WORDS.get(i)), count);
-           }
-       }
-	   System.out.println(weapons);
-	   if(!weapons.isEmpty()) {
-		   for(String key:weapons.keySet()) {
-			   if(weapons.get(key)>0) {
-				   weap.add(key);
-			   }
-		   }
-	   }
-	   return weap;
-   }
-   private static ArrayList<String> findStoryTarget(String story) {
-	   HashMap<String,Integer> targets=new HashMap<String,Integer>();
-	   ArrayList<String> tar=new ArrayList<String>();
-	   List<String> keyWords=Arrays.asList(Constants.TARGET);
-	   for(int i=1;i<WORDS.size();i++) {
-		   int count=0;
-		   if(keyWords.contains(WORDS.get(i).split(":")[0])) {
-			   count++;
-			   targets.put(WORDS.get(i)+":"+i,count);
-		   }
-	   }
-	   for(String key:targets.keySet()) {
-		   if(targets.get(key)==1) {
-			   String g=NounPhrase(key);
-			   tar.add(g);
-			   
-		   }
-		  
-	   }
-	   
-	   return tar;
-   }
-   private static String NounPhrase(String word){
-	   String x="";
-	   int first=Integer.valueOf(word.split(":")[1])+2;
-	   int last=Integer.valueOf(word.split(":")[1])-2;
-  			for(int j=Integer.valueOf(word.split(":")[1]);j<Math.min(Integer.valueOf(word.split(":")[1])+2,POS.size());j++) {
-  				if(!POS.get(j).split(":")[1].equals("NNP") && !POS.get(j).split(":")[1].equals("NNS")&& !POS.get(j).split(":")[1].equals("NN") &&!POS.get(j).split(":")[1].equals("NNPS")) {
-  					first=Math.min(j,first);
-  				  }
-  			  }
-  			for(int k=Integer.valueOf(word.split(":")[1])-1;k<=Math.max(Integer.valueOf(word.split(":")[1])-2,0);k--) {
-  				last=Integer.valueOf(word.split(":")[1])+1;
-  				if(!POS.get(k).split(":")[1].equals("NNP") && !POS.get(k).split(":")[1].equals("NNS")&& !POS.get(k).split(":")[1].equals("NN") && !POS.get(k).split(":")[1].equals("NNPS")) {
-  					last=Math.max(k, last);
-  					x=POS.get(k).split(":")[0]+" "+x;
-    			  }
-  			}
-  			
-  			for(int p=Integer.valueOf(word.split(":")[1])-1;p<=last;p--) {
-				x=POS.get(p).split(":")[0]+" "+x;
-			}
-  			for(int o=Integer.valueOf(word.split(":")[1])-1;o<first;o++) {
-				x=x+" "+POS.get(o).split(":")[0];
-			}
-	return x;
-	   
-   }
-   private static ArrayList<String> findStoryVictim(String story) throws ClassCastException, ClassNotFoundException, IOException{
-	   String victim="";
-	   ArrayList<String> vic=new ArrayList<String>();
-	   String modelPath = DependencyParser.DEFAULT_MODEL;
-	  
-	   String taggerPath = "resources/english-left3words-distsim.tagger"; // TODO make sure we have the correct relative path when turing in
-	   MaxentTagger tagger = new MaxentTagger(taggerPath);
-	    DependencyParser parser = DependencyParser.loadFromModelFile(modelPath);
-	    DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(story));
-	    List<String>
-        arsonKeyWords       = Arrays.asList(Constants.INCIDENT_ARSON),
-        attackKeyWords      = Arrays.asList(Constants.INCIDENT_ATTACK),
-        bombingKeyWords     = Arrays.asList(Constants.INCIDENT_BOMBING),
-        kidnappingKeyWords  = Arrays.asList(Constants.INCIDENT_KIDNAPPING),
-        robberyKeyWords     = Arrays.asList(Constants.INCIDENT_ROBBERY);
-	    for (List<HasWord> sentence : tokenizer) {
-		      List<TaggedWord> tagged = tagger.tagSentence(sentence);
-		      GrammaticalStructure gs= parser.predict(tagged);
-		      List<TypedDependency> x = gs.typedDependenciesEnhancedPlusPlus();
-		      for(int i=0;i<x.size();i++) {
-		    	  	if(x.get(i).reln().toString().equals("amod") || x.get(i).reln().toString().equals("nmod:of")) {
-		    	  		String [] y=x.get(i).toString().split(",");
-		    	  		String word1=y[0].split("\\(")[1].split("-")[0];
-		    	  		String word2=y[1].split("\\)")[0].split("-")[0].replaceAll(" ", "");
-		    	  		
-		    	  		int num1=Integer.valueOf(y[0].split("\\(")[1].split("-")[1]);
-		    	  		int num2=Integer.valueOf(y[1].split("\\)")[0].split("-")[1]);
-		    	  		if(num1>num2 && (arsonKeyWords.contains(word2.toLowerCase()) || attackKeyWords.contains(word2.toLowerCase())||bombingKeyWords.contains(word2.toLowerCase())||kidnappingKeyWords.contains(word2.toLowerCase())||robberyKeyWords.contains(word2.toLowerCase()))) {
-		    	  			if(!arsonKeyWords.contains(word1.toLowerCase()) && !attackKeyWords.contains(word1.toLowerCase()) && !bombingKeyWords.contains(word1.toLowerCase()) || !kidnappingKeyWords.contains(word1.toLowerCase())||!robberyKeyWords.contains(word1.toLowerCase()))
-		    	  			vic.add(word1);
-		    	  		}
-		    	  	}	
-		      }    
-	    }  
-	  
-	   return vic;
-   }
-    /**This class makes it easier to get the type with the most frequently occurring key words*/
-    private static class Incident{
-        private Incident(){}
+
+    private static String removeExtraBef(String x) {
+        String newS = "";
+        ArrayList<String> pat = new ArrayList<>();
+        for (String s : Constants.Extras_before) {
+            if (x.contains(s) && x.indexOf(s) == 0) {
+                pat.add(s);
+                if (pat.size() > 0) {
+                    newS = x.replace(s + " ", "");
+                }
+            }
+            if (pat.size() == 0) {
+                newS = x;
+            }
+        }
+        return newS;
+    }
+
+    private static String removeExtraAf(String x) {
+        String st = "";
+        int len = x.toCharArray().length;
+        ArrayList<String> pat = new ArrayList<>();
+        for (String h : Constants.Extras_after) {
+            if (x.contains(h) && x.indexOf(h) == len - 1) {
+                pat.add(h);
+                if (pat.size() > 0) {
+                    st = x.replace(h, "");
+                }
+            }
+            if (pat.size() == 0) {
+                st = x;
+            }
+        }
+        return st;
+    }
+
+    private static void Sentences(String story) throws IOException {
+        InputStream inputStream = new FileInputStream("resources/en-sent.bin");
+        SentenceModel model = new SentenceModel(inputStream);
+
+        //Instantiating the SentenceDetectorME class
+        SentenceDetectorME detector = new SentenceDetectorME(model);
+
+        //Detecting the sentence
+        String sentences[] = detector.sentDetect(story);
+
+        //Printing the sentences
+        Sents.addAll(Arrays.asList(sentences));
+    }
+
+    private static ArrayList<String> findNounPhrase(String story, String pattern, String string) throws IOException {
+        ArrayList<String> arr = new ArrayList<>();
+        InputStream is = new FileInputStream("resources/en-parser-chunking.bin");
+        ParserModel model = new ParserModel(is);
+        int len = pattern.split(" ").length;
+        opennlp.tools.parser.Parser parser = ParserFactory.create(model);
+        Parse[] topParses = ParserTool.parseLine(story.toLowerCase(), parser, 1);
+        StringBuilder t = new StringBuilder();
+        if (string.equals("after")) {
+            for (Parse p : topParses) {
+                for (int i = 0; i <= p.getTagNodes().length - len; i++) {
+                    t.setLength(0); // generate chunks
+                    for (int l = 0; l < len; l++) {
+                        t.append(p.getTagNodes()[i + l]).append(" ");
+                    }
+                    if (t.toString().trim().equals(pattern)) {
+                        if (p.getTagNodes()[i + len].getParent() != null && p.getTagNodes()[i + len] != null) {
+                            if (p.getTagNodes()[i + len].getParent().getType().equals("NP")) {
+                                ///	System.out.println(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
+                                arr.add(p.getTagNodes()[i + len].getParent().toString().toUpperCase());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else if (string.equals("before")) {
+            for (Parse p : topParses) {
+                for (int i = 0; i <= p.getTagNodes().length - len; i++) { //TODO: I changed i = 1 to i = 0, not sure if it needs to be 1
+                    t.setLength(0);
+                    for (int l = 0; l < len; l++) {
+                        t.append(p.getTagNodes()[i + l]).append(" ");
+                    }
+                    if (t.toString().trim().equals(pattern)) {
+                        if (p.getTagNodes()[i - 1].getParent() != null && p.getTagNodes()[i - 1] != null) {
+                            if (p.getTagNodes()[i - 1].getParent().getType().equals("NP")) {
+                                //		System.out.println(p.getTagNodes()[i-1].getParent().toString().toUpperCase());
+                                arr.add(p.getTagNodes()[i - 1].getParent().toString().toUpperCase());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return arr;
+    }
+
+    private static ArrayList<ArrayList<String>> findCategoryResult(String[] after, String[] before) throws IOException{
+        ArrayList<ArrayList<String>> res = new ArrayList<>();
+        for (String s : Sents) {
+            for (String h : after) {
+                if (s.toLowerCase().contains(h)) {
+                    res.add(findNounPhrase(s, h, "after"));
+                }
+            }
+            for (String t : before) {
+                if (s.toLowerCase().contains(t)) {
+                    res.add(findNounPhrase(s, t, "before"));
+                }
+            }
+        }
+        return res;
+    }
+
+    /**
+     * This class makes it easier to get the type with the most frequently occurring key words
+     */
+    private static class Incident {
+        private Incident() { }
+
         private String _type;
         private int _occurrence = 0;
 
-        private Incident setType(String type){
+        private Incident setType(String type) {
             _type = type;
             return this;
         }
-        private String getType(){
+
+        private String getType() {
             return _type;
         }
-        private void incrementOccurrence(){
+
+        private void incrementOccurrence() {
             _occurrence++;
         }
-        private int getOccurrence(){
+
+        private int getOccurrence() {
             return _occurrence;
         }
     }
