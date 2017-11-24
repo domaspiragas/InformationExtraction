@@ -6,6 +6,7 @@ import java.util.*;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import opennlp.tools.cmdline.parser.ParserTool;
 import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.ParserFactory;
@@ -13,17 +14,30 @@ import opennlp.tools.parser.ParserModel;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 
+import edu.stanford.nlp.coref.CorefCoreAnnotations;
+import edu.stanford.nlp.coref.data.CorefChain;
+import edu.stanford.nlp.coref.data.Mention;
+import edu.stanford.nlp.ling.CoreAnnotations;
+import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.util.CoreMap;
+
 public class infoextract {
     private static ArrayList<Template> templates = new ArrayList<>();
     private static ArrayList<String> stories = new ArrayList<>();
     private static ArrayList<String> Sents = new ArrayList<>();
 
+    private static StanfordCoreNLP pipeline;
+
     //	private static Parse[] topParses;
     public static void main(String[] args) throws ClassCastException, ClassNotFoundException, IOException {
+
+        //initPipeline();
         parseInputStories("resources/test3.txt");
+
         generateTemplatesFromStories();
 
-        for(Template t : templates) {
+        for (Template t : templates) {
             System.out.println(t.toString());
         }
 
@@ -81,7 +95,7 @@ public class infoextract {
 
     /**
      * Parses and creates a template for each story and stores it
-     *{ID, Incident, Weapon, Perp Indiv, Perp Org, Target, Victim}
+     * {ID, Incident, Weapon, Perp Indiv, Perp Org, Target, Victim}
      */
     private static void generateTemplatesFromStories() throws ClassCastException, ClassNotFoundException, IOException {
         Template template;
@@ -114,6 +128,7 @@ public class infoextract {
                 template.addVictim(y.get(i));
             }
 
+            //templates.add(removeCorefDuplicates(template, story));
             templates.add(template);
             Sents.clear(); // Clear so next story only contains its own sentences
         }
@@ -276,8 +291,7 @@ public class infoextract {
                     }
                 }
             }
-        }
-        else if (string.equals("before")) {
+        } else if (string.equals("before")) {
             for (Parse p : topParses) {
                 for (int i = 0; i <= p.getTagNodes().length - len; i++) { //TODO: I changed i = 1 to i = 0, not sure if it needs to be 1
                     t.setLength(0);
@@ -299,7 +313,7 @@ public class infoextract {
         return arr;
     }
 
-    private static ArrayList<ArrayList<String>> findCategoryResult(String[] after, String[] before) throws IOException{
+    private static ArrayList<ArrayList<String>> findCategoryResult(String[] after, String[] before) throws IOException {
         ArrayList<ArrayList<String>> res = new ArrayList<>();
         for (String s : Sents) {
             for (String h : after) {
@@ -316,11 +330,126 @@ public class infoextract {
         return res;
     }
 
+    //{ID, Incident, Weapon, Perp Indiv, Perp Org, Target, Victim}
+    private static Template removeCorefDuplicates(Template template, String story) {
+        ArrayList<ArrayList<String>> mentions = coref(story);
+        ArrayList<String> toRemove = new ArrayList<>();
+        String currFound = "";
+        Template t = template;
+        for (ArrayList<String> innerMentions : mentions) {
+            // Weapon
+            for (String weapon : template.getWeapons()) {
+                if (innerMentions.contains(weapon) && !currFound.isEmpty()) {
+                    toRemove.add(weapon);
+                } else if (innerMentions.contains(weapon)) {
+                    currFound = weapon;
+                }
+            }
+            for (String remove : toRemove) {
+                template.removeWeapon(remove);
+            }
+
+            //PerpIndiv
+            toRemove.clear();
+            currFound = "";
+            for (String perpIndiv : template.getPerpIndivs()) {
+                if (innerMentions.contains(perpIndiv) && !currFound.isEmpty()) {
+                    toRemove.add(perpIndiv);
+                } else if (innerMentions.contains(perpIndiv)) {
+                    currFound = perpIndiv;
+                }
+            }
+            for (String remove : toRemove) {
+                template.removePerpIndiv(remove);
+            }
+
+            //PerpOrg
+            toRemove.clear();
+            currFound = "";
+            for(String perpOrg : template.getPerpOrgs()){
+                if(innerMentions.contains(perpOrg) && !currFound.isEmpty()){
+                    toRemove.add(perpOrg);
+                } else if (innerMentions.contains(perpOrg)){
+                    currFound = perpOrg;
+                }
+            }
+            for(String remove:toRemove){
+                template.removePerpOrg(remove);
+            }
+
+            //Target
+            toRemove.clear();
+            currFound = "";
+            for (String target : template.getTargets()) {
+                if (innerMentions.contains(target) && !currFound.isEmpty()) {
+                    toRemove.add(target);
+                } else if (innerMentions.contains(target)) {
+                    currFound = target;
+                }
+            }
+            for (String remove : toRemove) {
+                template.removeTarget(remove);
+            }
+
+            //Victim
+            toRemove.clear();
+            currFound = "";
+            for (String victim : template.getVictims()) {
+                if (innerMentions.contains(victim) && !currFound.isEmpty()) {
+                    toRemove.add(victim);
+                } else if (innerMentions.contains(victim)) {
+                    currFound = victim;
+                }
+            }
+            for(String remove:toRemove){
+                template.removeVictim(remove);
+            }
+        }
+        return template;
+    }
+
+    private static void initPipeline() {
+        Properties props = new Properties();
+        props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,mention,coref");
+        pipeline = new StanfordCoreNLP(props);
+    }
+
+    private static ArrayList<ArrayList<String>> coref(String story) {
+        Annotation document = new Annotation(story);
+        pipeline.annotate(document);
+        //System.out.println("---");
+        //System.out.println("coref chains");
+        ArrayList<ArrayList<String>> mentions = new ArrayList<>();
+            /*for (CorefChain cc : document.get(CorefCoreAnnotations.CorefChainAnnotation.class).values()) {
+                System.out.println("\t" + cc);
+            } */
+        for (CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
+            //System.out.println("---");
+            //System.out.println("mentions");
+            ArrayList<String> innerMentions = new ArrayList<>();
+            for (Mention m : sentence.get(CorefCoreAnnotations.CorefMentionsAnnotation.class)) {
+                String x = m.toString();
+                x = x.replace(" -RRB-", ")");
+                x = x.replace("-LRB- ", "(");
+                x = x.replace(" -RSB-", "]");
+                x = x.replace("-LSB- ", "[");
+                x = x.replace(" \'S", "\'S");
+                x = x.replace("THE ", "");
+                x = x.replace(" ,", ",");
+               // System.out.println("\t" + x);
+                innerMentions.add(x);
+            }
+            mentions.add(innerMentions);
+        }
+        return mentions;
+    }
+
     /**
      * This class makes it easier to get the type with the most frequently occurring key words
      */
     private static class Incident {
-        private Incident() { }
+        private Incident() {
+        }
 
         private String _type;
         private int _occurrence = 0;

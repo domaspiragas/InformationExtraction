@@ -31,6 +31,9 @@ public class Template {
         _weapons.add(weapon);
         return this;
     }
+    public void removeWeapon(String weapon){
+        _weapons.remove(weapon);
+    }
     public ArrayList<String> getWeapons(){
         return _weapons;
     }
@@ -38,6 +41,9 @@ public class Template {
     public Template addPerpIndiv(String perpIndiv){
         _perpIndivs.add(perpIndiv);
         return this;
+    }
+    public void removePerpIndiv(String perpIndiv){
+        _perpIndivs.remove(perpIndiv);
     }
     public ArrayList<String> getPerpIndivs() {
         return _perpIndivs;
@@ -47,6 +53,9 @@ public class Template {
         _perpOrgs.add(perpOrg);
         return this;
     }
+    public void removePerpOrg(String perpOrg){
+        _perpOrgs.remove(perpOrg);
+    }
     public ArrayList<String> getPerpOrgs() {
         return _perpOrgs;
     }
@@ -55,6 +64,9 @@ public class Template {
         _targets.add(target);
         return this;
     }
+    public void removeTarget(String target){
+        _targets.remove(target);
+    }
     public ArrayList<String> getTargets() {
         return _targets;
     }
@@ -62,6 +74,9 @@ public class Template {
     public Template addVictim(String victim){
         _victims.add(victim);
         return this;
+    }
+    public void removeVictim(String victim){
+        _victims.remove(victim);
     }
     public ArrayList<String> getVictims() {
         return _victims;
