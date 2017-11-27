@@ -5,7 +5,8 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.*;
 
-/*import edu.stanford.nlp.ling.CoreLabel;
+/*
+import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.parser.nndep.DependencyParser;
@@ -27,21 +28,21 @@ import opennlp.tools.cmdline.parser.ParserTool;
 import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.ParserFactory;
 import opennlp.tools.parser.ParserModel;
+
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 
 public class infoextract {
     private static ArrayList<Template> templates = new ArrayList<>();
     private static ArrayList<String> stories = new ArrayList<>();
-    private static ArrayList<String> NOUNS = new ArrayList<>();
-    private static ArrayList<String> POS = new ArrayList<>();
-    private static ArrayList<String> WORDS = new ArrayList<>();
+//    private static ArrayList<String> NOUNS = new ArrayList<>();
+ //   private static ArrayList<String> POS = new ArrayList<>();
+ //   private static ArrayList<String> WORDS = new ArrayList<>();
     private static ArrayList<String> Sents = new ArrayList<>();
 //	private static Parse[] topParses;
     public static void main(String[] args) throws ClassCastException, ClassNotFoundException, IOException{
-    	parseInputStories("DEV-MUC3-0014.txt");
+    	parseInputStories("TST2-MUC4-0078");
     	generateTemplatesFromStories();
-    	
     	System.out.println(templates);
     	
         /*//This would ideally be the total contents of main
@@ -131,9 +132,12 @@ public class infoextract {
             template = new Template()
                     .setId(findStoryId(story))
                     .setIncident(findStoryIncident(story));
-            for(int i=0;i<findStoryWeapon(story).size();i++) {
-            		template.addWeapon(findStoryWeapon(story).get(i));
-            		}
+            
+           
+           // 		template.addWeapon(findStoryWeapon(story).get(i));
+            //		}
+            
+            
             ArrayList<String> y=cleanData(findStoryVictim(story));
             for(int i=0;i<y.size();i++) {
             		
@@ -141,7 +145,7 @@ public class infoextract {
         		}
             
             ArrayList<String> y1=cleanData(findStoryTarget(story));
-            System.out.println(y1);
+         //   System.out.println(y1);
             for(int i=0;i<y1.size();i++) {
             		
             			template.addTarget(y1.get(i));
@@ -154,7 +158,19 @@ public class infoextract {
             			template.addPerpIndiv(y2.get(i));
             		
         		}
+            
+            ArrayList<String> y3=cleanData(findStoryOrg(story));
+            
+            for(int i=0;i<y3.size();i++) {
             		
+            			template.addPerpOrg(y3.get(i));
+            		
+        		}
+           // ArrayList<String> weap=findStoryWeapon(story);
+             for(int i=0;i<findStoryWeapon(story).size();i++) {
+            	 	template.addWeapon(findStoryWeapon(story).get(i).toUpperCase());
+             }
+             	
             //The the logic for parsing the story and building the template should be here
             //Incident
             //Weapon
@@ -219,7 +235,7 @@ public class infoextract {
             return incidents.get(incidents.size()-1).getType();
         }
     }
-   /* private static void findPOS(String story){
+ /*   private static void findPOS(String story){
     	   Properties props = new Properties();
   	   props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
   	   StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
@@ -243,37 +259,32 @@ public class infoextract {
 			   NOUNS.add(POS.get(i));
 		   }
 	   }
-    }*/
-    
-   private static ArrayList<String> findStoryWeapon(String story){
-	   String weapon="";
-	   HashMap<String,Integer> weapons=new HashMap<>();
-	   ArrayList<String> weap=new ArrayList<String>();
-	   
-	   List<String>
-       weaponsKeyWords       = Arrays.asList(Constants.WEAPONS);
-	   for(int i=0;i<WORDS.size();i++){
-		   int count=0;
-           if (weaponsKeyWords.contains(WORDS.get(i).split(":")[0])) {
-        	   	//	System.out.println(WORDS.get(i));
-        	   		count++;
-        	   		//weapons.put(NounPhrase(WORDS.get(i)), count);
-           }
-       }
-	  // System.out.println(weapons);
-	   if(!weapons.isEmpty()) {
-		   for(String key:weapons.keySet()) {
-			   if(weapons.get(key)>0) {
-				   weap.add(key);
-			   }
-		   }
-	   }
-	   return weap;
-   }
+    }
+    */
+ 
    private static ArrayList<ArrayList<String>> findStoryTarget(String story) throws IOException {
 	   ArrayList<ArrayList<String>> res=new ArrayList<ArrayList<String>>();
 		String [] after=patterns.pattern_target_after;
 		String [] before=patterns.pattern_target_before;
+		for(String s:Sents) {
+			for(String h:after) {
+				//System.out.println(s.toLowerCase().contains(h));
+				if(s.toLowerCase().contains(h))
+					res.add(findNounPhraseTarget(s,h,"after"));
+			}
+		for(String t:before) {
+			//System.out.println(s.toLowerCase().contains(t));
+			if(s.toLowerCase().contains(t)) {
+			res.add(findNounPhraseTarget(s,t,"before"));}
+		}
+		
+	   }
+		return res;
+		}
+   private static ArrayList<ArrayList<String>> findStoryOrg(String story) throws IOException {
+	   ArrayList<ArrayList<String>> res=new ArrayList<ArrayList<String>>();
+		String [] after=patterns.pattern_org_after;
+		String [] before=patterns.pattern_org_before;
 		for(String s:Sents) {
 			for(String h:after) {
 				//System.out.println(s.toLowerCase().contains(h));
@@ -295,15 +306,16 @@ public class infoextract {
 		   for(int j=0;j<uncleaned.get(i).size();j++) {
 			   String x=uncleaned.get(i).get(j);
 			   if(!cleaned.contains(x) && x!=null) {
-				 if(x.contains("AND")) {
+				 if(x.contains(" AND ")) {
 					 String []words=x.split(" AND ");
-					 if(!cleaned.contains(removeExtraBef(removeExtraAf(words[0])))){
+					 if(!cleaned.contains(removeExtraBef(removeExtraAf(words[0]))) && words[0]!=""){
 					 cleaned.add(removeExtraBef(removeExtraAf(words[0])));}
-					 if(!cleaned.contains(removeExtraBef(removeExtraAf(words[1])))){
+					 if(!cleaned.contains(removeExtraBef(removeExtraAf(words[1]))) && words[1]!=""){
+						// System.out.println(words[1]);
 						 cleaned.add(removeExtraBef(removeExtraAf(words[1])));}
 				 }
 				 if(!cleaned.contains(removeExtraBef(removeExtraAf(x))))
-				 cleaned.add(removeExtraBef(removeExtraAf(x))); 
+					 cleaned.add(removeExtraBef(removeExtraAf(x))); 
 			   }
 		   }
 	   }
@@ -368,7 +380,7 @@ private static String removeExtraAf(String x) {
 	   
    }*/
   private static void Sentences(String story) throws IOException {
-	  InputStream inputStream = new FileInputStream("/Users/sunipadev/Downloads/opnenlp-models/en-sent.bin"); 
+	  InputStream inputStream = new FileInputStream("/Users/maryambarouti/Downloads/opnenlp-models/en-sent.bin"); 
       SentenceModel model = new SentenceModel(inputStream); 
        
       //Instantiating the SentenceDetectorME class 
@@ -386,7 +398,7 @@ private static String removeExtraAf(String x) {
 	
    private static ArrayList<String> findNounPhraseVictim(String story,String pattern,String string) throws IOException {
 	    ArrayList<String> arr=new ArrayList<String>();
-	    InputStream is = new FileInputStream("/Users/sunipadev/Downloads/opnenlp-models/en-parser-chunking.bin");
+	    InputStream is = new FileInputStream("/Users/maryambarouti/Downloads/opnenlp-models/en-parser-chunking.bin");
 		ParserModel model = new ParserModel(is);
 		int len=pattern.split(" ").length;
 		opennlp.tools.parser.Parser parser = ParserFactory.create(model);
@@ -402,8 +414,17 @@ private static String removeExtraAf(String x) {
 					if(t.equals(pattern)) {
 						if(p.getTagNodes()[i+len].getParent()!=null && p.getTagNodes()[i+len]!=null ) {
 							if(p.getTagNodes()[i+len].getParent().getType().equals("NP")) {
-							///	System.out.println(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
-								arr.add(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
+								String [] x= Constants.TARGET;
+								ArrayList<Boolean> exists=new ArrayList<>();
+								for(String h:x) {
+									exists.add(!(p.getTagNodes()[i+len].getParent().toString().toUpperCase()).contains(h));
+										
+									//	arr.add(p.getTagNodes()[i+len].getParent().toString().toUpperCase());}
+								//arr.add(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
+							}
+								if(!exists.contains(true)) {
+									arr.add(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
+								}
 							}
 						}
 					}
@@ -424,7 +445,15 @@ private static String removeExtraAf(String x) {
 						if(p.getTagNodes()[i-1].getParent()!=null && p.getTagNodes()[i-1]!=null ) {
 							if(p.getTagNodes()[i-1].getParent().getType().equals("NP")) {
 						//		System.out.println(p.getTagNodes()[i-1].getParent().toString().toUpperCase());
-								arr.add(p.getTagNodes()[i-1].getParent().toString().toUpperCase());
+								String [] x= Constants.TARGET;
+								ArrayList<Boolean> exists=new ArrayList<>();
+								for(String h:x) {
+									exists.add(!(p.getTagNodes()[i-1].getParent().toString().toUpperCase()).contains(h));
+							}
+							
+								if(!exists.contains(true)) {
+									arr.add(p.getTagNodes()[i-1].getParent().toString().toUpperCase());
+								}
 							}
 						}
 					}
@@ -436,7 +465,7 @@ private static String removeExtraAf(String x) {
 }
    private static ArrayList<String> findNounPhraseTarget(String story,String pattern,String string) throws IOException {
 	   ArrayList<String> arr=new ArrayList<String>();
-	    InputStream is = new FileInputStream("/Users/sunipadev/Downloads/opnenlp-models/en-parser-chunking.bin");
+	    InputStream is = new FileInputStream("/Users/maryambarouti/Downloads/opnenlp-models/en-parser-chunking.bin");
 		ParserModel model = new ParserModel(is);
 		int len=pattern.split(" ").length;
 		opennlp.tools.parser.Parser parser = ParserFactory.create(model);
@@ -455,15 +484,17 @@ private static String removeExtraAf(String x) {
 					if(t.equals(pattern)) {
 						if(p.getTagNodes()[i+len].getParent()!=null && p.getTagNodes()[i+len]!=null ) {
 							if(p.getTagNodes()[i+len].getParent().getType().equals("NP")) {
-								System.out.println(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
-								arr.add(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
+								String [] x= Constants.TARGET;
+								for(String h:x) {
+									if(p.getTagNodes()[i+len].getParent().toString().toUpperCase().contains(h)) {
+										arr.add(p.getTagNodes()[i+len].getParent().toString().toUpperCase());}
+								}
 							}
 						}
 					}
 				}
 			}
 	   }
-	
 	   if(string.equals("before")) {
 		   for (Parse p : topParses) {
 				for(int i=1;i<p.getTagNodes().length-len;i++) {
@@ -476,8 +507,11 @@ private static String removeExtraAf(String x) {
 					if(t.equals(pattern)) {
 						if(p.getTagNodes()[i-1].getParent()!=null && p.getTagNodes()[i-1]!=null ) {
 							if(p.getTagNodes()[i-1].getParent().getType().equals("NP")) {
-								System.out.println(p.getTagNodes()[i-1].getParent().toString().toUpperCase());
-								arr.add(p.getTagNodes()[i-1].getParent().toString().toUpperCase());
+								String [] x= Constants.TARGET;
+								for(String h:x) {
+									if(p.getTagNodes()[i-1].getParent().toString().toUpperCase().contains(h)) {
+										arr.add(p.getTagNodes()[i-1].getParent().toString().toUpperCase());}
+								}
 							}
 						}
 					}
@@ -485,11 +519,70 @@ private static String removeExtraAf(String x) {
 			}		
 	   }
 	return arr;   
+   }
+   private static ArrayList<String> findNounPhraseOrg(String story,String pattern,String string) throws IOException {
+	    ArrayList<String> arr=new ArrayList<String>();
+	    InputStream is = new FileInputStream("/Users/maryambarouti/Downloads/opnenlp-models/en-parser-chunking.bin");
+		ParserModel model = new ParserModel(is);
+		int len=pattern.split(" ").length;
+		opennlp.tools.parser.Parser parser = ParserFactory.create(model);
+		Parse [] topParses= ParserTool.parseLine(story.toLowerCase(), parser, 1);
+	    if(string.equals("after")) {
+			for (Parse p : topParses) {
+				for(int i=0;i<p.getTagNodes().length-len+1;i++) {
+					String t=""; // generate chunks
+					for(int l=0;l<len;l++) { if(l==0) {
+						t=t+p.getTagNodes()[i];
+					}
+					else{t=t+" "+p.getTagNodes()[i+l];}}
+					if(t.equals(pattern)) {
+						if(p.getTagNodes()[i+len].getParent()!=null && p.getTagNodes()[i+len]!=null ) {
+							if(p.getTagNodes()[i+len].getParent().getType().equals("NP")) {
+								String [] x= Constants.org_keyword;
+								System.out.println(x.length);
+								for(String h:x) {
+									System.out.println(h);
+									if(p.getTagNodes()[i+len].getParent().toString().contains(h))
+										arr.add(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
+								}
+							}
+						}
+					}
+				}
+			}
+	   }
+	   if(string.equals("before")) {
+		   for (Parse p : topParses) {
+				for(int i=1;i<p.getTagNodes().length-len+1;i++) {
+					String t="";
+					for(int l=0;l<len;l++) { 
+						if(l==0) {
+							t=t+p.getTagNodes()[i];
+						}
+						else{t=t+" "+p.getTagNodes()[i+l];}}
+					if(t.equals(pattern)) {
+						if(p.getTagNodes()[i-1].getParent()!=null && p.getTagNodes()[i-1]!=null ) {
+							System.out.println("+");
+							if(p.getTagNodes()[i-1].getParent().getType().equals("NP")) {
+								String [] x= Constants.org_keyword;
+								System.out.println(x.length);
+								for(String h:x) {
+									System.out.println(h);
+									if(p.getTagNodes()[i-1].getParent().toString().contains(h))
+										arr.add(p.getTagNodes()[i-1].getParent().toString().toUpperCase());
+								}
+							}
+						}
+					}
+				}
+			}		
+	   }
+	   
+	return arr;   
 }
-   
    private static ArrayList<String> findNounPhraseInd(String story,String pattern,String string) throws IOException {
 	   ArrayList<String> arr=new ArrayList<String>();
-	    InputStream is = new FileInputStream("/Users/sunipadev/Downloads/opnenlp-models/en-parser-chunking.bin");
+	    InputStream is = new FileInputStream("/Users/maryambarouti/Downloads/opnenlp-models/en-parser-chunking.bin");
 		ParserModel model = new ParserModel(is);
 		int len=pattern.split(" ").length;
 		opennlp.tools.parser.Parser parser = ParserFactory.create(model);
@@ -575,11 +668,35 @@ private static ArrayList<ArrayList<String>> findStoryVictim(String story) throws
 		if(s.toLowerCase().contains(t))
 		res.add(findNounPhraseVictim(s,t,"before"));
 	}
-	
    }
 	return res;
 	}
-
+private static ArrayList<String> findStoryWeapon(String story) throws IOException{
+	 
+	   HashMap<String,Integer> weapons=new HashMap<>();
+	   ArrayList<String> weap=new ArrayList<String>();
+	   List<String> weaponsKeyWords= Arrays.asList(Constants.WEAPONS);
+	   //System.out.println(weaponsKeyWords);
+	 //  System.out.println(Sents);
+	   for(String h:Sents){
+		   
+		   for (String x:weaponsKeyWords) {
+     	   		int count=0;
+     	   		if(h.toLowerCase().contains(x)) {
+     	   			count++;
+     	   			weapons.put(x, count);
+        		}
+    		}
+        }
+	   if(!weapons.isEmpty()) {
+		   for(String key:weapons.keySet()) {
+			   if(weapons.get(key)>0) {
+				   weap.add(key);
+			   }
+		   }
+	   }
+	   return weap;
+}
 	/**This class makes it easier to get the type with the most frequently occurring key words*/
     private static class Incident{
         private Incident(){}

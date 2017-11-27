@@ -34,7 +34,6 @@ public class Template {
     public ArrayList<String> getWeapons(){
         return _weapons;
     }
-
     public Template addPerpIndiv(String perpIndiv){
         _perpIndivs.add(perpIndiv);
         return this;
