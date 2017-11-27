@@ -7,7 +7,7 @@ public final class patterns {
     				,"funeral of","massacred","assassinat","assassination in which","machinegunned","as hostage","attacks on"
     				,"shooting at","killing are those of","actions against","sabotage attack against","maimed","release of","shot repeatedly","victim is",
     				"victims are","kidnapped","kidnapping of","burning of","repeatedly shot","shot repeatedly at","fired at","sacked","killing of","murdering of",
-    				"attacking of"},
+    				"attacking of","release",},
     		pattern_Victim_before= {"murdered","were bombarded","was bombarded","were kidnapped","was kidnapped","were murdered","was murdered","were attacked","was attacked",
     				"were assassinated","was assassinated","were killed","was killed","were abducted","was abducted","was dead","were dead",
     				"has been killed","have been killed","had been killed","were set free","was set on fire","were set on fire","was set free"
@@ -21,7 +21,7 @@ public final class patterns {
     				,"victim of the terror is","victims of the terror are","maimed","were hurt","was hurt","was brutally hurt","were brutally hurt"
     				,"was shot","were shot","was machinegunned","were machinegunned","was gunned","were gunned","have been gunned","has been gunned"
     				,"had been gunned","injure","wound","has been sakced","have been sacked","been sacked","have set up barricades","has set up barricades"
-    				,"planted","planted bomb","carried out by"},
+    				,"planted","planted bomb","carried out by","was released","were released"},
     		pattern_Ind_after= {"were murdered by","were kidnapped by","were attacked by","were arson by","were burned by",
     				"were targeted by","were abducted by","was murdered by","was kidnapped by","was attacked by"
     				,"was arson by","was burned by","was targeted by","was abducted by","commition points to"
@@ -29,7 +29,7 @@ public final class patterns {
     				"dynamited by","have accused by","has accused by","were hit by ","was killed as the",
     				"was perpetrated by","were perpetrated by","was hit by","were killed as the","placed by"
     				,"were killed today by","the attack was the work of","the attack was apperently the work of"
-    				,"bomb placed by","to prosecute","arrest of","carried out by"},
+    				,"bomb placed by","to prosecute","arrest of","carried out by","abducted by"},
     		pattern_Ind_before={"placed bomb","placed a bomb","placed the bomb","placed dynamite","placed the dynamite","placed a dynamite",
     				"participated in crime","implicated in the murder","implicated in the burining of",
     				"implicated in the attacking ","implicated in the assassination of","implicated in the kidnapping of",
@@ -73,5 +73,5 @@ public final class patterns {
     		pattern_org_after= {"members of the band","members of","members of the group","carried out by","carried out this morning by","carried out last night by",
     				"blamed it on","attributed the attacks to","attributed the dynamite attacks to","attributed the dynamite attack to"
     				,"run by","perpetrated by","accused","condemn","condemn that","confessed that","raid stage by","action by","bombing attack to"
-    				,"is accountable","work by"};
+    				,"is accountable","work by","kidnapped by"};
     }
