@@ -32,7 +32,7 @@ public final class Constants {
     			Extras_after= {",",".",":",";","\""},
     			org_keyword= {"forces","movement","path","patriotic","government","national","liberation","army","alliance","republican"
     					,"nationalist","fmln","agent","extraditables","cartel","force","police","polices","revolutionary","mafia","group"
-    					,"brigate","military","regime","battalion","group","band","corps","party","security","services","cia"};
+    					,"brigate","military","regime","battalion","group","band","corps","party","security","services","cia","salvadoran"};
 }
 //MACHINE-GUN->ATTACK
 //DYNAMITE STICKS / DYNAMITE->BOMBING

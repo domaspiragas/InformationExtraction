@@ -41,7 +41,7 @@ public class infoextract {
     private static ArrayList<String> Sents = new ArrayList<>();
 //	private static Parse[] topParses;
     public static void main(String[] args) throws ClassCastException, ClassNotFoundException, IOException{
-    	parseInputStories("TST2-MUC4-0078");
+    	parseInputStories("TST2-MUC4-0025");
     	generateTemplatesFromStories();
     	System.out.println(templates);
     	
@@ -289,12 +289,12 @@ public class infoextract {
 			for(String h:after) {
 				//System.out.println(s.toLowerCase().contains(h));
 				if(s.toLowerCase().contains(h))
-					res.add(findNounPhraseTarget(s,h,"after"));
+					res.add(findNounPhraseOrg(s,h,"after"));
 			}
 		for(String t:before) {
 			//System.out.println(s.toLowerCase().contains(t));
 			if(s.toLowerCase().contains(t))
-			res.add(findNounPhraseTarget(s,t,"before"));
+			res.add(findNounPhraseOrg(s,t,"before"));
 		}
 		
 	   }
@@ -411,17 +411,19 @@ private static String removeExtraAf(String x) {
 						t=t+p.getTagNodes()[i];
 					}
 					else{t=t+" "+p.getTagNodes()[i+l];}}
-					if(t.equals(pattern)) {
+					//System.out.println("after::"+t);
+					if(t.contains(pattern)) {
 						if(p.getTagNodes()[i+len].getParent()!=null && p.getTagNodes()[i+len]!=null ) {
 							if(p.getTagNodes()[i+len].getParent().getType().equals("NP")) {
+								//System.out.println(p.getTagNodes()[i+len].getParent());
 								String [] x= Constants.TARGET;
 								ArrayList<Boolean> exists=new ArrayList<>();
 								for(String h:x) {
-									exists.add(!(p.getTagNodes()[i+len].getParent().toString().toUpperCase()).contains(h));
+									exists.add(p.getTagNodes()[i+len].getParent().toString().toUpperCase().contains(h));
 										
 									//	arr.add(p.getTagNodes()[i+len].getParent().toString().toUpperCase());}
 								//arr.add(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
-							}
+								}
 								if(!exists.contains(true)) {
 									arr.add(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
 								}
@@ -440,17 +442,21 @@ private static String removeExtraAf(String x) {
 						if(l==0) {
 							t=t+p.getTagNodes()[i];
 						}
-						else{t=t+" "+p.getTagNodes()[i+l];}}
-					if(t.equals(pattern)) {
+						else{
+							t=t+" "+p.getTagNodes()[i+l];
+							}
+						}
+					//System.out.println("before::"+t);
+					if(t.contains(pattern)) {
 						if(p.getTagNodes()[i-1].getParent()!=null && p.getTagNodes()[i-1]!=null ) {
 							if(p.getTagNodes()[i-1].getParent().getType().equals("NP")) {
+						//		System.out.println(p.getTagNodes()[i-1].getParent());
 						//		System.out.println(p.getTagNodes()[i-1].getParent().toString().toUpperCase());
 								String [] x= Constants.TARGET;
 								ArrayList<Boolean> exists=new ArrayList<>();
 								for(String h:x) {
-									exists.add(!(p.getTagNodes()[i-1].getParent().toString().toUpperCase()).contains(h));
-							}
-							
+									exists.add((p.getTagNodes()[i-1].getParent().toString().toUpperCase().contains(h)));
+								}
 								if(!exists.contains(true)) {
 									arr.add(p.getTagNodes()[i-1].getParent().toString().toUpperCase());
 								}
@@ -481,7 +487,7 @@ private static String removeExtraAf(String x) {
 						t=t+p.getTagNodes()[i];
 					}
 					else{t=t+" "+p.getTagNodes()[i+l];}}
-					if(t.equals(pattern)) {
+					if(t.contains(pattern)) {
 						if(p.getTagNodes()[i+len].getParent()!=null && p.getTagNodes()[i+len]!=null ) {
 							if(p.getTagNodes()[i+len].getParent().getType().equals("NP")) {
 								String [] x= Constants.TARGET;
@@ -504,7 +510,7 @@ private static String removeExtraAf(String x) {
 							t=t+p.getTagNodes()[i];
 						}
 						else{t=t+" "+p.getTagNodes()[i+l];}}
-					if(t.equals(pattern)) {
+					if(t.contains(pattern)) {
 						if(p.getTagNodes()[i-1].getParent()!=null && p.getTagNodes()[i-1]!=null ) {
 							if(p.getTagNodes()[i-1].getParent().getType().equals("NP")) {
 								String [] x= Constants.TARGET;
@@ -535,13 +541,13 @@ private static String removeExtraAf(String x) {
 						t=t+p.getTagNodes()[i];
 					}
 					else{t=t+" "+p.getTagNodes()[i+l];}}
-					if(t.equals(pattern)) {
+					if(t.contains(pattern)) {
 						if(p.getTagNodes()[i+len].getParent()!=null && p.getTagNodes()[i+len]!=null ) {
 							if(p.getTagNodes()[i+len].getParent().getType().equals("NP")) {
 								String [] x= Constants.org_keyword;
-								System.out.println(x.length);
+								//System.out.println(x.length);
 								for(String h:x) {
-									System.out.println(h);
+								//	System.out.println(h);
 									if(p.getTagNodes()[i+len].getParent().toString().contains(h))
 										arr.add(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
 								}
@@ -560,14 +566,14 @@ private static String removeExtraAf(String x) {
 							t=t+p.getTagNodes()[i];
 						}
 						else{t=t+" "+p.getTagNodes()[i+l];}}
-					if(t.equals(pattern)) {
+					if(t.contains(pattern)) {
 						if(p.getTagNodes()[i-1].getParent()!=null && p.getTagNodes()[i-1]!=null ) {
-							System.out.println("+");
+							//System.out.println("+");
 							if(p.getTagNodes()[i-1].getParent().getType().equals("NP")) {
 								String [] x= Constants.org_keyword;
-								System.out.println(x.length);
+							//	System.out.println(x.length);
 								for(String h:x) {
-									System.out.println(h);
+									//System.out.println(h);
 									if(p.getTagNodes()[i-1].getParent().toString().contains(h))
 										arr.add(p.getTagNodes()[i-1].getParent().toString().toUpperCase());
 								}
@@ -598,10 +604,10 @@ private static String removeExtraAf(String x) {
 						t=t+p.getTagNodes()[i];
 					}
 					else{t=t+" "+p.getTagNodes()[i+l];}}
-					if(t.equals(pattern)) {
+					if(t.contains(pattern)) {
 						if(p.getTagNodes()[i+len].getParent()!=null && p.getTagNodes()[i+len]!=null ) {
 							if(p.getTagNodes()[i+len].getParent().getType().equals("NP")) {
-								System.out.println(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
+							//	System.out.println(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
 								arr.add(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
 							}
 						}
@@ -619,10 +625,10 @@ private static String removeExtraAf(String x) {
 							t=t+p.getTagNodes()[i];
 						}
 						else{t=t+" "+p.getTagNodes()[i+l];}}
-					if(t.equals(pattern)) {
+					if(t.contains(pattern)) {
 						if(p.getTagNodes()[i-1].getParent()!=null && p.getTagNodes()[i-1]!=null ) {
 							if(p.getTagNodes()[i-1].getParent().getType().equals("NP")) {
-								System.out.println(p.getTagNodes()[i-1].getParent().toString().toUpperCase());
+							//	System.out.println(p.getTagNodes()[i-1].getParent().toString().toUpperCase());
 								arr.add(p.getTagNodes()[i-1].getParent().toString().toUpperCase());
 							}
 						}
@@ -659,18 +665,18 @@ private static ArrayList<ArrayList<String>> findStoryVictim(String story) throws
 	String [] before=patterns.pattern_Victim_before;
 	for(String s:Sents) {
 		for(String h:after) {
-		//	System.out.println(s.toLowerCase().contains(h));
 			if(s.toLowerCase().contains(h))
 				res.add(findNounPhraseVictim(s,h,"after"));
 		}
 	for(String t:before) {
 	//	System.out.println(s.toLowerCase().contains(t));
 		if(s.toLowerCase().contains(t))
-		res.add(findNounPhraseVictim(s,t,"before"));
+			res.add(findNounPhraseVictim(s,t,"before"));
 	}
    }
 	return res;
 	}
+
 private static ArrayList<String> findStoryWeapon(String story) throws IOException{
 	 
 	   HashMap<String,Integer> weapons=new HashMap<>();
