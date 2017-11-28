@@ -6,7 +6,6 @@ import java.util.*;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
 import opennlp.tools.cmdline.parser.ParserTool;
 import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.ParserFactory;
@@ -14,40 +13,20 @@ import opennlp.tools.parser.ParserModel;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 
-import edu.stanford.nlp.coref.CorefCoreAnnotations;
-import edu.stanford.nlp.coref.data.CorefChain;
-import edu.stanford.nlp.coref.data.Mention;
-import edu.stanford.nlp.ling.CoreAnnotations;
-import edu.stanford.nlp.pipeline.Annotation;
-import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import edu.stanford.nlp.util.CoreMap;
-
 public class infoextract {
     private static ArrayList<Template> templates = new ArrayList<>();
     private static ArrayList<String> stories = new ArrayList<>();
     private static ArrayList<String> Sents = new ArrayList<>();
 
-    private static StanfordCoreNLP pipeline;
-
-    //	private static Parse[] topParses;
     public static void main(String[] args) throws ClassCastException, ClassNotFoundException, IOException {
 
-        //initPipeline();
-        parseInputStories("resources/test3.txt");
+        //This would ideally be the total contents of main
+         parseInputStories(args[0]);
 
-        generateTemplatesFromStories();
+         generateTemplatesFromStories();
 
-        for (Template t : templates) {
-            System.out.println(t.toString());
-        }
+         createTemplatesFile(args[0]);
 
-        /*//This would ideally be the total contents of main
-        * parseInputStories(args[0]);
-        *
-        * generateTemplatesFromStories();
-        *
-        * createTemplatesFile(args[0]);
-        * */
     }
 
     /**
@@ -83,7 +62,6 @@ public class infoextract {
                         story.setLength(0);
                     }
                 }
-                // Not sure if it's necessary to preserve the new lines
                 story.append(line + "\n");
             }
             stories.add(story.toString());
@@ -105,30 +83,43 @@ public class infoextract {
                     .setId(findStoryId(story)) //ID
                     .setIncident(findStoryIncident(story)); // Incident
 
+            //Weapon
+            for(int i=0;i<findStoryWeapon().size();i++) {
+                template.addWeapon(findStoryWeapon().get(i).toUpperCase());
+            }
+
             //Perp Indiv
-            ArrayList<String> y2 = cleanData(findCategoryResult(patterns.pattern_Ind_after, patterns.pattern_Ind_before));
+            ArrayList<String> y2 = cleanData(findCategoryResult(patterns.pattern_Ind_after, patterns.pattern_Ind_before,
+                    null, false));
             for (int i = 0; i < y2.size(); i++) {
 
                 template.addPerpIndiv(y2.get(i));
             }
 
             /*Perp Org Goes Here*/
+            ArrayList<String> y3 = cleanData(findCategoryResult(patterns.pattern_org_after, patterns.pattern_org_before,
+                    Constants.org_keyword, false));
+            for (int i = 0; i < y3.size(); i++) {
+
+                template.addPerpOrg(y3.get(i));
+            }
 
             //Target
-            ArrayList<String> y1 = cleanData(findCategoryResult(patterns.pattern_target_after, patterns.pattern_target_before));
+            ArrayList<String> y1 = cleanData(findCategoryResult(patterns.pattern_target_after, patterns.pattern_target_before,
+                    Constants.TARGET, false));
             for (int i = 0; i < y1.size(); i++) {
 
                 template.addTarget(y1.get(i));
             }
 
             //Victim
-            ArrayList<String> y = cleanData(findCategoryResult(patterns.pattern_Victim_after, patterns.pattern_Victim_before));
+            ArrayList<String> y = cleanData(findCategoryResult(patterns.pattern_Victim_after, patterns.pattern_Victim_before,
+                    Constants.TARGET, true));
             for (int i = 0; i < y.size(); i++) {
 
                 template.addVictim(y.get(i));
             }
 
-            //templates.add(removeCorefDuplicates(template, story));
             templates.add(template);
             Sents.clear(); // Clear so next story only contains its own sentences
         }
@@ -253,7 +244,7 @@ public class infoextract {
     }
 
     private static void Sentences(String story) throws IOException {
-        InputStream inputStream = new FileInputStream("resources/en-sent.bin");
+        InputStream inputStream = new FileInputStream("en-sent.bin");
         SentenceModel model = new SentenceModel(inputStream);
 
         //Instantiating the SentenceDetectorME class
@@ -266,9 +257,9 @@ public class infoextract {
         Sents.addAll(Arrays.asList(sentences));
     }
 
-    private static ArrayList<String> findNounPhrase(String story, String pattern, String string) throws IOException {
+    private static ArrayList<String> findNounPhrase(String story, String pattern, String string, String[] constants, Boolean victim) throws IOException {
         ArrayList<String> arr = new ArrayList<>();
-        InputStream is = new FileInputStream("resources/en-parser-chunking.bin");
+        InputStream is = new FileInputStream("en-parser-chunking.bin");
         ParserModel model = new ParserModel(is);
         int len = pattern.split(" ").length;
         opennlp.tools.parser.Parser parser = ParserFactory.create(model);
@@ -276,16 +267,33 @@ public class infoextract {
         StringBuilder t = new StringBuilder();
         if (string.equals("after")) {
             for (Parse p : topParses) {
-                for (int i = 0; i <= p.getTagNodes().length - len; i++) {
+                for (int i = 0; i < p.getTagNodes().length - len; i++) {
                     t.setLength(0); // generate chunks
                     for (int l = 0; l < len; l++) {
                         t.append(p.getTagNodes()[i + l]).append(" ");
                     }
-                    if (t.toString().trim().equals(pattern)) {
+                    if (t.toString().trim().contains(pattern)) {
                         if (p.getTagNodes()[i + len].getParent() != null && p.getTagNodes()[i + len] != null) {
                             if (p.getTagNodes()[i + len].getParent().getType().equals("NP")) {
-                                ///	System.out.println(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
-                                arr.add(p.getTagNodes()[i + len].getParent().toString().toUpperCase());
+                                if (constants != null) {
+                                    if(!victim) {
+                                        for (String h : constants) {
+                                            if (p.getTagNodes()[i + len].getParent().toString().toUpperCase().contains(h)) {
+                                                arr.add(p.getTagNodes()[i + len].getParent().toString().toUpperCase());
+                                            }
+                                        }
+                                    }else{
+                                        ArrayList<Boolean> exists=new ArrayList<>();
+                                        for(String h:constants) {
+                                            exists.add(p.getTagNodes()[i + len].getParent().toString().toUpperCase().contains(h));
+                                        }
+                                        if(!exists.contains(true)) {
+                                            arr.add(p.getTagNodes()[i+len].getParent().toString().toUpperCase());
+                                        }
+                                    }
+                                } else {
+                                    arr.add(p.getTagNodes()[i + len].getParent().toString().toUpperCase());
+                                }
                             }
                         }
                     }
@@ -293,16 +301,33 @@ public class infoextract {
             }
         } else if (string.equals("before")) {
             for (Parse p : topParses) {
-                for (int i = 0; i <= p.getTagNodes().length - len; i++) { //TODO: I changed i = 1 to i = 0, not sure if it needs to be 1
+                for (int i = 0; i < p.getTagNodes().length - len; i++) {
                     t.setLength(0);
                     for (int l = 0; l < len; l++) {
                         t.append(p.getTagNodes()[i + l]).append(" ");
                     }
-                    if (t.toString().trim().equals(pattern)) {
+                    if (t.toString().trim().contains(pattern)) {
                         if (p.getTagNodes()[i - 1].getParent() != null && p.getTagNodes()[i - 1] != null) {
                             if (p.getTagNodes()[i - 1].getParent().getType().equals("NP")) {
-                                //		System.out.println(p.getTagNodes()[i-1].getParent().toString().toUpperCase());
-                                arr.add(p.getTagNodes()[i - 1].getParent().toString().toUpperCase());
+                                if (constants != null) {
+                                    if(!victim) {
+                                        for (String h : constants) {
+                                            if (p.getTagNodes()[i - 1].getParent().toString().toUpperCase().contains(h)) {
+                                                arr.add(p.getTagNodes()[i - 1].getParent().toString().toUpperCase());
+                                            }
+                                        }
+                                    }else{
+                                        ArrayList<Boolean> exists=new ArrayList<>();
+                                        for(String h:constants) {
+                                            exists.add((p.getTagNodes()[i-1].getParent().toString().toUpperCase().contains(h)));
+                                        }
+                                        if(!exists.contains(true)) {
+                                            arr.add(p.getTagNodes()[i-1].getParent().toString().toUpperCase());
+                                        }
+                                    }
+                                } else {
+                                    arr.add(p.getTagNodes()[i - 1].getParent().toString().toUpperCase());
+                                }
                             }
                         }
                     }
@@ -313,135 +338,46 @@ public class infoextract {
         return arr;
     }
 
-    private static ArrayList<ArrayList<String>> findCategoryResult(String[] after, String[] before) throws IOException {
+    private static ArrayList<ArrayList<String>> findCategoryResult(String[] after, String[] before, String[] constants, Boolean victim) throws IOException {
         ArrayList<ArrayList<String>> res = new ArrayList<>();
         for (String s : Sents) {
             for (String h : after) {
                 if (s.toLowerCase().contains(h)) {
-                    res.add(findNounPhrase(s, h, "after"));
+                    res.add(findNounPhrase(s, h, "after", constants, victim));
                 }
             }
             for (String t : before) {
                 if (s.toLowerCase().contains(t)) {
-                    res.add(findNounPhrase(s, t, "before"));
+                    res.add(findNounPhrase(s, t, "before", constants, victim));
                 }
             }
         }
         return res;
     }
 
-    //{ID, Incident, Weapon, Perp Indiv, Perp Org, Target, Victim}
-    private static Template removeCorefDuplicates(Template template, String story) {
-        ArrayList<ArrayList<String>> mentions = coref(story);
-        ArrayList<String> toRemove = new ArrayList<>();
-        String currFound = "";
-        Template t = template;
-        for (ArrayList<String> innerMentions : mentions) {
-            // Weapon
-            for (String weapon : template.getWeapons()) {
-                if (innerMentions.contains(weapon) && !currFound.isEmpty()) {
-                    toRemove.add(weapon);
-                } else if (innerMentions.contains(weapon)) {
-                    currFound = weapon;
-                }
-            }
-            for (String remove : toRemove) {
-                template.removeWeapon(remove);
-            }
+    private static ArrayList<String> findStoryWeapon() throws IOException{
 
-            //PerpIndiv
-            toRemove.clear();
-            currFound = "";
-            for (String perpIndiv : template.getPerpIndivs()) {
-                if (innerMentions.contains(perpIndiv) && !currFound.isEmpty()) {
-                    toRemove.add(perpIndiv);
-                } else if (innerMentions.contains(perpIndiv)) {
-                    currFound = perpIndiv;
-                }
-            }
-            for (String remove : toRemove) {
-                template.removePerpIndiv(remove);
-            }
+        HashMap<String,Integer> weapons=new HashMap<>();
+        ArrayList<String> weap=new ArrayList<>();
+        List<String> weaponsKeyWords= Arrays.asList(Constants.WEAPONS);
 
-            //PerpOrg
-            toRemove.clear();
-            currFound = "";
-            for(String perpOrg : template.getPerpOrgs()){
-                if(innerMentions.contains(perpOrg) && !currFound.isEmpty()){
-                    toRemove.add(perpOrg);
-                } else if (innerMentions.contains(perpOrg)){
-                    currFound = perpOrg;
+        for(String h:Sents){
+            for (String x:weaponsKeyWords) {
+                int count=0;
+                if(h.toLowerCase().contains(x)) {
+                    count++;
+                    weapons.put(x, count);
                 }
-            }
-            for(String remove:toRemove){
-                template.removePerpOrg(remove);
-            }
-
-            //Target
-            toRemove.clear();
-            currFound = "";
-            for (String target : template.getTargets()) {
-                if (innerMentions.contains(target) && !currFound.isEmpty()) {
-                    toRemove.add(target);
-                } else if (innerMentions.contains(target)) {
-                    currFound = target;
-                }
-            }
-            for (String remove : toRemove) {
-                template.removeTarget(remove);
-            }
-
-            //Victim
-            toRemove.clear();
-            currFound = "";
-            for (String victim : template.getVictims()) {
-                if (innerMentions.contains(victim) && !currFound.isEmpty()) {
-                    toRemove.add(victim);
-                } else if (innerMentions.contains(victim)) {
-                    currFound = victim;
-                }
-            }
-            for(String remove:toRemove){
-                template.removeVictim(remove);
             }
         }
-        return template;
-    }
-
-    private static void initPipeline() {
-        Properties props = new Properties();
-        props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,mention,coref");
-        pipeline = new StanfordCoreNLP(props);
-    }
-
-    private static ArrayList<ArrayList<String>> coref(String story) {
-        Annotation document = new Annotation(story);
-        pipeline.annotate(document);
-        //System.out.println("---");
-        //System.out.println("coref chains");
-        ArrayList<ArrayList<String>> mentions = new ArrayList<>();
-            /*for (CorefChain cc : document.get(CorefCoreAnnotations.CorefChainAnnotation.class).values()) {
-                System.out.println("\t" + cc);
-            } */
-        for (CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
-            //System.out.println("---");
-            //System.out.println("mentions");
-            ArrayList<String> innerMentions = new ArrayList<>();
-            for (Mention m : sentence.get(CorefCoreAnnotations.CorefMentionsAnnotation.class)) {
-                String x = m.toString();
-                x = x.replace(" -RRB-", ")");
-                x = x.replace("-LRB- ", "(");
-                x = x.replace(" -RSB-", "]");
-                x = x.replace("-LSB- ", "[");
-                x = x.replace(" \'S", "\'S");
-                x = x.replace("THE ", "");
-                x = x.replace(" ,", ",");
-               // System.out.println("\t" + x);
-                innerMentions.add(x);
+        if(!weapons.isEmpty()) {
+            for(String key:weapons.keySet()) {
+                if(weapons.get(key)>0) {
+                    weap.add(key);
+                }
             }
-            mentions.add(innerMentions);
         }
-        return mentions;
+        return weap;
     }
 
     /**
